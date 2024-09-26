@@ -1,0 +1,279 @@
+---
+- Amazon:
+  - Access Key: (?:A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA|ABIA|ACCA)[A-Z0-9]{16}
+  - Secret Access Key: (?i)secret(_access_key|accesskey)[^,.{}()<>?*&:%@!\/= \n]{0,20}\s*[:=]\s*[\w0-9-+=\/\""'][^\s\n.:{}()<>?*&:%@!]{38,42}
+  - Cognito User Pool ID: (?i)us-[a-z]{2,}-[a-z]{4,}-\d{1,}
+  - RDS Password: (?i)(rds\-master\-password|db\-password)[^\"'`\n]{0,40}[\"'`\n]{0,3}[a-zA-Z0-9@#*+=]{8,}
+  - S3 Private Key: (?i)(AWS_S3_PRIVATE_KEY|s3_key)[^\"'`\n]{0,40}[\"'`\n]{0,3}[a-zA-Z0-9/+=]{40}
+  - SNS Confirmation Token: (?i)SubscribeURL":"https:\/\/sns\.[a-z0-9-]+\.amazonaws\.com\/?Action=ConfirmSubscription&Token=[a-zA-Z0-9-=_]+
+  - SES SMTP Password: (?i)ses_smtp_password[^\"'`\n]{0,40}[\"'`\n]{0,3}[A-Za-z0-9/+]{40,}
+  - AWS Private Key: (?i)(?:ec2\-private\-key|EC2_PRIVATE_KEY)[^\"'`\n]{0,40}[\"'`\n]{0,3}[A-Za-z0-9/+]{40,}
+  - MWS Token: (amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})
+  - AppSync GraphQL Key: (da2-[a-z0-9]{26})
+
+- Microsoft:
+  - Azure API Key: (?i)(?:Ocp-Apim-Subscription-Key).{0,40}([a-f0-9)]{32})
+  - Azure Functions key: (?i)(?:x-functions-key:\s*)[a-zA-Z0-9\-_]{30,}
+  - Client Secret: (?i)(?:client_secret|ClientSecret)[\s:\"]{0,3}[a-zA-Z0-9\-_]{36,}
+  - Graph API Key: (?i)MSGRAPH_[a-zA-Z0-9\-_]{20,40}
+  - Outlook Webhook URL Token: (?i)https:\/\/outlook\.office\.com\/webhook\/[A-Za-z0-9\-]{60,}
+  - Webhook URL Token: (?i)https:\/\/outlook\.office\.com\/webhook\/[A-Za-z0-9\-]{60,}
+  - OneDrive Access Token: (?i)(?:onedrive_access_token)[\"\'=:\s]{0,3}([a-zA-Z0-9\-_]{40,})
+
+- Shopify:
+  - Custom App Token: (?i)shpca_[a-fA-F0-9]{32}
+  - Shared Secret Token: (?i)shpss_[a-fA-F0-9]{32}
+  - Access Token: (?i)shpat_[a-fA-F0-9]{32}
+  - Private Access Token: (?i)shppa_[a-fA-F0-9]{32}
+
+- Twilio:
+  - SendGrid API Key: (?i)(SG\.[\w\-_]{20,24}\.[\w\-_]{39,50})
+  - Token: (?i)(?:twilio)[^{}()<>?*&:%@!\/= \n]{0,20}( ){0,1}[=:]( ){0,1}?(?:^|['\"`])((?:AC|ac)[a-f0-9]{32})(?:$|['\"`])
+  - API Key: (?i)(sk[0-9a-fA-F]{32})
+
+- Authentication:
+  - Bearer Token: "(Authorization: )*((b|B)earer [a-zA-Z0-9+\/._=-]{16,512})(={0,2})"
+  - Basic Token: "(Authorization: )*((b|B)asic [a-zA-Z0-9+\/._=-]{16,512})(={0,2})"
+  - JSON Web Token: eyJ[a-zA-Z0-9]{3,}\.eyJ[A-Za-z0-9_\\/+-]{3,}\.[A-Za-z0-9_\\/+-]{3,}
+
+- Atlassian: 
+  - JIRA Token: (?i)(?:jira)[^{}()<>?*&:%@!\/= \n]{0,20}[\"\'`]?\s{0,50}\b(?::|=>|=|,)\s{0,50}[\"\'`]?([a-zA-Z-0-9]{24})
+  - Bitbucket Data Center Access Token: BBDC-[a-zA-Z0-9+]{44})
+  - Confluence API Key: (?i)confluence[a-zA-Z0-9_]{12,}
+  - App Password: (?i)(bbp_[a-zA-Z0-9]{32})
+
+- Google:
+  - Cloud API Key: AIza[0-9A-Za-z_-]{35}
+  - Cloud OAuth Secret: (?i)(GOCSPX-[-0-9A-Za-z_]{24,32})
+  - reCaptcha Key: 6L([A-Za-z0-9_-]{38,40})
+  - OAuth Key: ya29\.[0-9A-Za-z_-]{64,256}
+  - Firebase URL: (?i)https:\/\/[a-z0-9-]+\.firebaseio\.com
+  - Firebase Cloud Messaging API Key: (?i)([0-9a-zA-Z_-]{11}:APA91b[0-9a-zA-Z_-]{134})
+  - Signed URL: (?i)https:\/\/storage\.googleapis\.com\/[A-Za-z0-9\/-]+?GoogleAccessId=[A-Za-z0-9-]+&Expires=\d+&Signature=[A-Za-z0-9%]+
+  - Cloud Service Account Private Key: (?i)"private_key":\s*"-----BEGIN PRIVATE KEY-----[A-Za-z0-9\/+=\n]+-----END PRIVATE KEY-----"
+  - Cloud Service Account Key ID: (?i)"private_key_id":\s*"[a-f0-9]{32}"
+  - Cloud Project Number: (?i)"project_number":\s*"\d{12}"
+  - Client ID: [0-9]+-[0-9A-Za-z_]{32}\.apps\.googleusercontent\.com
+
+- GitHub:
+  - Access Token: (?i)ghp_[A-Za-z0-9_]{35,38}
+  - OAuth Token: (?i)gho_[A-Za-z0-9_]{35,38}
+  - App Installation Token: (?i)ghu_[A-Za-z0-9_]{35,38}
+  - App user Token: (?i)ghs_[A-Za-z0-9_]{35,38}
+  - Refresh Token: (?i)ghr_[A-Za-z0-9_]{35,38}
+  - Webhook Secret: (?i)(whsec_[A-Za-z0-9]{31,38})
+
+- GitLab:
+  - Personal Access Token: (?i)glpat-[A-Za-z0-9\-_]{20}
+  - OAuth Access Token: (?i)glOauth-[A-Za-z0-9\-_]{20,50}
+  - GitLab Job Token: (?i)(?:gitlab-ci-token)[^{}]{0,20}( ){0,1}[=:]( ){0,1}([A-Za-z0-9\-_]{20,50})
+  - Repository Access Token: (?i)glrepo-[A-Za-z0-9\-_]{20,50}
+  - Secret File Token: (?i)(?:secret_token|CI_JOB_TOKEN)[^{}]{0,20}( ){0,1}[=:]( ){0,1}([A-Za-z0-9\-_]{20,50})
+  - Project Secret Token: (?i)glproj-[A-Za-z0-9\-_]{20,50}
+  - Classic Token: (?i)(?:gitlab)[^{}()<>?*&:%@!\/= \n]{0,40}[\"\']?\s{0,50}(?::|=>|=)\s{0,50}[\"\']?([a-zA-Z0-9-_]{20})
+
+- Slack:
+  - User Token: (xox[ps]-[0-9]{8,13}-[0-9]{8,13}-[0-9]{8,13}-[a-zA-Z0-9-]{10,32})
+  - Bot Token: (xox[b]-[0-9]{8,13}-[0-9]{8,13}-[a-zA-Z0-9-]{20,30})
+  - Workspace Access Token: (xoxa-[0-9]{8,13}-[0-9]{8,13}-[a-zA-Z0-9-]{8,128})
+  - Workspace Refresh Token: (xoxr-[0-9]{8,13}-[0-9]{8,13}-[a-zA-Z0-9-]{8,128})
+  - Configuration Access Token: (xoxe.xoxp-[0-9]{0,2}-[a-zA-Z0-9-]{130,170})
+  - Configuration Refresh Token: (xoxe-[0-9]{0,2}-[a-zA-Z0-9-]{130,170})
+  - App Token: (xapp-[0-9]{0,2}-[A-Z0-9]{8,13}-[0-9]{12,15}-[a-zA-Z0-9-]{60,70})
+
+- Docker:
+  - Hub Access Token: dckr_pat_[a-zA-Z0-9_=-]{24,32}
+  - Swarm Join Token: (?i)(SWMTKN-[a-z0-9-[A-Za-z0-9]+)
+  - Swarm Unlock Token: (?i)(swmkey-1-[A-Za-z0-9+_-]{30,50})
+
+- Meta:
+  - Page Access Token: (?i)(EAAG[0-9A-Za-z]{10,255})
+  - Facebook Access Token: EAACEdEose0cBA[0-9A-Za-z]+
+  - Client Token: (?i)fb[a-zA-Z0-9]{24,32}
+  - Instagram Access Token: (?i)(IGQV[0-9A-Za-z-_]{10,255})
+  - Instagram App Secret: (?i)(ig_[a-f0-9]{32})
+  - Instagram Client Token: (?i)(ig_ct_[a-zA-Z0-9]{32})
+  - Instagram Authentication Token: (?i)(ig_did=[a-f0-9-]{36})
+  - WhatsApp API Key: (?i)(?:whatsapp)[^{}]{0,20}[=:\"\' ]{0,5}([A-Za-z0-9]{24,32})
+  - WhatsApp Session Token: (?i)(session_token=[a-zA-Z0-9-_]{40,})
+  - Messenger App Secret: (?i)(?:messenger|fb)[^{}]{0,20}[=:\"\' ]{0,5}([a-f0-9]{32})
+  - Debug Token: (?i)(DQVJ[0-9A-Za-z-_]{10,255})
+
+- Grafana:
+  - Service Account Token: (?i)glsa_[a-z0-9+-=\/]{32}_[a-f0-9]{8}
+  - API Token: (?:(?i)grafana[a-z0-9_-]{0,32})( ){0,1}(:|=)( ){0,1}("){0,1}eyJrIjoi[A-Za-z0-9_]{42}("){0,1}
+
+- Stripe:
+  - Read-only Key: (?i)rk_live_[a-zA-Z0-9]{20,30}
+  - Secret Key: (?i)sk_live_[a-zA-Z0-9]{20,30}
+  - Publishable Key: (?i)pk_live_[a-zA-Z0-9]{20,30}
+
+- PayPal:
+  - Access Token: (?:^|['\"])access_token\$production\$([0-9a-zA-Z]{28,42})
+
+- SquareUp:
+  - API Key: sq0i[a-z]{2}-[0-9A-Za-z\-_]{22,43}
+  - API Secret: sq0c[a-z]{2}-[0-9A-Za-z\-_]{40,50}
+
+- PubNub:
+  - Publish Key: pub-c-[0-9a-z]{8}-[0-9a-z]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}
+  - Subscribe Key: sub-c-[0-9a-z]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}
+
+- FlutterWave:
+  - API Key: (?i)(FLWSECK-[0-9a-z]{32}-X)
+
+- DataDog:
+  - API Key: (?i)(datadog_api|dd_api|dd_key|ddapi|ddkey|datadogapi|datadog_key|datadogkey|datadog).+(=|:){0,1}[01234567890abcdef]{32}
+
+- Spotify:
+  - Device Cookie: (?i)sp_dc=[\w_-]{128,256}
+  - Key: (?i)sp_key=[a-f0-9]{8}-?[a-f0-9]{4}-?4[a-f0-9]{3}-?[89ab][a-f0-9]{3}-?[a-f0-9]{12}
+
+- Telegram:
+  - Bot API Key: (?:bot)*[0-9]{8,10}:AA[0-9A-Za-z\-_=]{33}
+
+- SonarSource:
+  - API Key: (?i)sonar[^,.{}()<>?*&:%@!\/= \n]{0,20}\s*[:=]\s*[a-fA-F0-9-+=/""']{22,62}
+
+- Airtable:
+  - API Key: (?i)(?:airtable).{0,40}[\"\'`]?\s{0,50}(?::|=>|=|,)\s{0,50}[\"\'`]?(key[a-zA-Z0-9_-]{14})
+
+- Postman:
+  - API Key: (?i)(PMAK-[a-zA-Z-0-9]{59})
+
+- Clearbit:
+  - API Key: (?i)(?:clearbit)[^{}]{0,20}( ){0,1}[=:]( ){0,1}.{0,40}(sk_[0-9a-z_]{24,32})
+
+- Django:
+  - Secret Key: (?i)(?:django)[^{}()<>?*&:%@!\/=\n.,]{0,20}( ){0,1}[=:]( ){0,1}?.{0,40}([a-z0-9-//=+][^,._\s"\' \n]{40,128})
+
+- Shodan: 
+  - API Key: (?i)(?:shodan)[^{}]{0,20}( ){0,1}[=:]( ){0,1}([a-zA-Z0-9]{32})
+
+- OpenAI:
+  - API Key: (?i)(sk-[a-zA-Z0-9]{20}T3BlbkFJ[a-zA-Z0-9]{20})
+
+- OpenWeatherMap:
+  - API Key: (?i)(?:https?://api\.openweathermap\.org/data/[a-z0-9.+?\/]+=)([a-z0-9]{32})
+
+- Razorpay:
+  - Test Key: (?i)rzp_test_\w{10,20}
+  - Live Key: (?i)rzp_live_\w{10,20}
+
+- CircleCI:
+  - Personal Token: (?i)(?:circle)[^{}]{0,20}( ){0,1}[=:]( ){0,1}(["a-fA-F0-9]{40,42})
+
+- MailGun:
+  - API Key: (?i)key-[0-9a-zA-Z]{32}
+  - Domain Sending Key: [a-f0-9]{32}-[a-f0-9]{8}-[a-f0-9]{8}
+
+- Okta:
+  - API Key: (?i)(?:okta).{0,40}[\"\'`]?\s{0,50}(?::|=>|=|,)\s{0,50}[\"\'`]?00[a-zA-Z0-9_-]{40}
+
+- Hashicorp:
+  - Terraform API Token: (?i)([A-Za-z0-9]{14}.atlasv1.[A-Za-z0-9]{67})
+  - Vault Unseal Key: (?i)unseal.?(?:key|token)[^)(|\s"\'<>,&#]?.{0,40}([a-fA-F0-9\/_\-=][^|\s"\'<>,&#]{43})
+
+- Intuit:
+  - MailChimp API Key: (?i)[0-9a-f]{32}-us[0-9]{1,2}
+
+- NPM:
+  - Token:	(?i)(npm_[0-9a-zA-Z]{36})
+
+- Riot Games: 
+  - API Key:	(?i)(rgapi[a-f0-9-]{37})
+
+- RubyGems:	
+  - API Key: (?i)(rubygems_[a-zA0-9]{48})
+
+- Artifactory:
+  - Token: AKCp[0-9][a-zA-Z0-9]{64,128}
+
+- Figma:
+  - Personal Access Token:	(figd_[a-zA-Z0-9-_]{14,32}_[a-zA-Z0-9-_]{14,32})
+
+- Adafruit.io:
+  - API Key: aio_[a-zA-Z0-9]{28}
+
+- Checkout.com: 
+  - Secret Key: (sk_|sk_test_)[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}
+
+- Mapbox:
+  - Token: (?i)(sk\.eyj1ijoi[a-zA-Z-0-9-_\.]{80,240})
+
+- IBM Cloud:
+  - User Key: (?i)(?:ibm)[^{}]{0,20}( ){0,1}[=:]( ){0,1}(-_[A-Za-z0-9_-]{42})
+
+- Heroku:
+  - Platform API Key: (?i)(?:heroku[-_:]+).{0,20}\b([0-9Aa-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\b
+
+- Freshdesk:
+  - API Token: (?i)(?:freshdesk)[^{}()<>?*&:%@.\-!\/\n]{0,40}\b([0-9A-Za-z]{16,24})
+
+- Docusign:
+  - API Key: (?i)(?:docusign).{0,40}\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b
+
+- Dynatrace:
+  - API Token: dt0[a-zA-Z]{1}[0-9]{2}\.[A-Z0-9]{24}\.[A-Z0-9]{64}
+
+- Sidekiq:
+  - API Key: (?i)(?:CONTRIBSYS_+COM).{0,40}\b(?:[0-9a-z\-_\t .]{0,20})\b
+
+- Fastly:
+  - Personal Token:	(?i)(?:fastly)[^{}()<>?*&%'",@!\-/=\n]{0,40}\b([A-Za-z0-9_-]{32})\b
+
+- Intercom:
+  - Access Token:	(?i)(?:intercom).{5,40}[:= ]\b([a-zA-Z0-9+\\=]{32,64})
+
+- Asana:
+  - Personal Access Token: (?i)(?:asana).{0,40}([0-9]{1,}\/[0-9]{10,}:[A-Za-z0-9]{32,})|([0-9]{1,}\/[0-9]{10,}:[A-Za-z0-9]{32,})
+
+- Beamer:
+  - API Key: (?i)(?:beamer).{0,40}b_[a-z0-9+/]{43}=|b_[a-z0-9+/]{43}=
+
+- Chief.app:
+  - Key: ct[pt]_([a-zA-Z0-9]){36}
+  
+- Square:
+  - Access Token:	(sq0atp-[0-9A-Za-z\-_]{22})
+
+- Saucelabs:
+  - Key: (?i)(?:sauce)[^{}]{0,20}( ){0,1}[=:]( ){0,1}?(['"0-9a-fA-F-]{36})
+
+- Hockeyapp:
+  - Key: (?i)(?:hockey).{0,40}[\"\'`]?\s{0,50}(?::|=>|=|,)\s{0,50}[\"\'`]?([0-9a-f]{32})
+
+- NuGet:
+  - API Key: (?i)(?:nuget).{0,40}(oy2[a-z0-9]{43})
+ 
+- CodeClimate:
+  - Key: (?i)(?:codeclimate).{0,40}[\"\'`]?\s{0,50}(?::|=>|=|,)\s{0,50}[\"\'`]?([0-9a-f]{64})
+
+- Pingdom:
+  - Token: (?i)(?:pingdom).{0,40}[\"\'`]?\s{0,50}(?::|=>|=|,)\s{0,50}[\"\'`]?([a-zA-Z-0-9-_]{60,80})
+
+- Line:
+  - Token: (?i)(?:line_(channel|secret|token))[^{}]{0,20}( ){0,1}[=:]( ){0,1}(?:^|['\"])([a-z0-9]{38})(?:$|['\"])
+
+- RapidAPI:
+  - Key: (?i)(?:x-rapidapi-key)[^{}()<>?*&:%@!\/= \n]{0,20}( ){0,1}[=:]( ){0,1}?.{0,40}([a-fA-F0-9_\-!@%*=()^&#$+][^\s"\' \n]{40,128})
+
+- WeChat:
+  - App Key: (?:^|['\"`])(wx[a-f0-9]{16})(?:$|['\"`])
+
+- Generic URL:
+  - Auth: (?i)((https?|ftps?|ssh|sftp)://[^":@>\]\[\n\s*/]+:[^:@/>\]\[\n\s*/]+([^>\]\[\n\s*:][@]{1})\w+(\.\w+)+)
+  - Redis: (?i)((redis?)://[^":@>\]\[\n\s*/]+:[^:@/>\]\[\n\s*/]+([^>\]\[\n\s*:][@]{1})\w+(\.\w+)+)
+  - MongoDB: (?i)(?:mongodb:|mongodb\+srv:)//[\S]{1,256}:[\S]{1,256}@[-.%\w\/:]+\.[\S]+
+  - FTP: ftp://[a-zA-Z0-9-_+.@]+:[^@]+@[^/]+
+  - Postgres: (?i)(?:pgsql:|postgres:|postgresql:)//[\S]{1,256}:[\S]{1,256}@[-.%\w\/:]+\.[\S]+
+
+- Generic:
+  - Shell Command: [\w. ]+(--username|-u|--user|--uname|--userid|--id|-i) [^$][\w_\-."']{1,256} (--password|-p|--pwd|--pass)[^$<{][\w_\-."']{4,253}
+  - Private SSH Key: "(-----BEGIN (?:[DR]SA|EC|PGP|OPENSSH)?\s?PRIVATE KEY(?: BLOCK)?-----[A-Za-z0-9+/=\s]{32,}-----END (?:[DR]SA|EC|PGP|OPENSSH)?\s?PRIVATE KEY(?: BLOCK)?-----)"
+  - PGP Key: /^(-----BEGIN PGP PRIVATE KEY BLOCK-----).*([a-zA-Z0-9//\n\/\.\:\+\ \=]+).*(-----END PGP PRIVATE KEY BLOCK-----)$/
+  - JSON Web Key: /^(?:[A-Za-z0-9+/]{4})*(?:[A-Za-z0-9+/]{2}==|[A-Za-z0-9+/]{3}=)?$/gm
+
+- PuTTY:
+  - RSA Key: "/^PuTTY-User-Key-File-2: ssh-rsa\s*Encryption: none(?:.|\s?)*?Private-MAC:$/"
+  - DSA Key: "/^PuTTY-User-Key-File-2: ssh-rsa\s*Encryption: none(?:.|\s?)*?Private-MAC:$/"

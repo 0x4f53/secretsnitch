@@ -5,6 +5,13 @@ import (
 	"io"
 	"os"
 	"path/filepath"
+	"sync"
+)
+
+var (
+	maxWorkers = 100 // Number of concurrent workers
+	semaphore  = make(chan struct{}, maxWorkers)
+	wg         sync.WaitGroup // WaitGroup to wait for all workers to finish
 )
 
 func visit(path string, info os.FileInfo, err error) error {
@@ -13,12 +20,20 @@ func visit(path string, info os.FileInfo, err error) error {
 		return nil
 	}
 	if !info.IsDir() {
-		err := copyFile(path, "temp"+path)
-		if err != nil {
-			fmt.Printf("Error copying file %s: %v\n", path, err)
-		} else {
-			fmt.Printf("Copied file %s to temp%s\n", path, path)
-		}
+		wg.Add(1)
+		go func(src string) {
+			defer wg.Done()
+			semaphore <- struct{}{}        // Acquire a worker slot
+			defer func() { <-semaphore }() // Release the worker slot when done
+
+			dst := filepath.Join("temp", src)
+			err := copyFile(src, dst)
+			if err != nil {
+				fmt.Printf("Error copying file %s: %v\n", src, err)
+			} else {
+				//fmt.Printf("Copied file %s to temp/%s\n", src, src)
+			}
+		}(path)
 	}
 	return nil
 }
@@ -61,4 +76,7 @@ func main() {
 	if err != nil {
 		fmt.Printf("Error walking the path %s: %v\n", root, err)
 	}
+
+	// Wait for all workers to finish
+	wg.Wait()
 }
