@@ -1,5 +1,11 @@
 package main
 
+var (
+	maxWorkers = 100000 // number of concurrent workers
+)
+
+var signatures []Signature
+
 /*
 func main() {
 		if len(os.Args) < 2 {
@@ -20,6 +26,9 @@ func main() {
 */
 
 func main() {
-	readInputFile("urls.txt")
-	//readInputURL("https://meettaamaskrwwallet.gitbook.io/us")
+	signatures = readSignatures()
+	//readInputFile("urls.txt")
+	files, _ := listCachedFiles()
+	readCache(files)
+
 }

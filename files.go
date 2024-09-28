@@ -11,13 +11,14 @@ import (
 	"bufio"
 	"crypto/md5"
 	"fmt"
+	"log"
 	"math/rand"
 	"os"
 )
 
 var (
-	cacheDir       = ".urlCache/"
-	cacheExtension = ".cache"
+	cacheDir           = ".urlCache/"
+	cacheFileExtension = ".cache"
 )
 
 func readLines(filename string) ([]string, error) {
@@ -64,17 +65,32 @@ func makeDir(dirName string) error {
 	return nil
 }
 
-func cacheSave(filename string, data string) error {
-	// Check if cache directory exists
+func saveToCache(filename string, data string) error {
 	makeDir(cacheDir)
-	filename = cacheDir + filename + cacheExtension
+	filename = cacheDir + filename + cacheFileExtension
 	err := os.WriteFile(filename, []byte(data), 0644)
 	return err
 }
 
 func fileExists(location string) bool {
-	if _, err := os.Stat("/path/to/whatever"); err == nil {
+	if _, err := os.Stat(location); err == nil {
 		return true
 	}
 	return false
+}
+
+func listCachedFiles() ([]string, error) {
+	var fileList []string
+	files, err := os.ReadDir(cacheDir)
+	if err != nil {
+		log.Fatal(err)
+		return fileList, err
+	}
+	for _, file := range files {
+		if !file.IsDir() {
+			relativePath := cacheDir + file.Name()
+			fileList = append(fileList, relativePath)
+		}
+	}
+	return fileList, err
 }

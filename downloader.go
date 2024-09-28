@@ -18,7 +18,8 @@ import (
 )
 
 var (
-	maxWorkers = 1000000 // number of concurrent workers
+	timeoutSeconds  = 10
+	userAgentString = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36"
 )
 
 func scrapeURL(url string, wg *sync.WaitGroup) {
@@ -26,14 +27,14 @@ func scrapeURL(url string, wg *sync.WaitGroup) {
 
 	c := colly.NewCollector()
 	c.OnRequest(func(r *colly.Request) {
-		r.Headers.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36")
+		r.Headers.Set("User-Agent", userAgentString)
 		log.Println("Visiting", r.URL)
 	})
-	c.SetRequestTimeout(10 * time.Second)
+	c.SetRequestTimeout(time.Duration(timeoutSeconds) * time.Second)
 	c.OnResponse(func(r *colly.Response) {
 		responseString := url + "\n---\n" + string(r.Body)
 		cacheFileName := md5Hash(url)[0:8]
-		err := cacheSave(cacheFileName, responseString)
+		err := saveToCache(cacheFileName, responseString)
 		if err != nil {
 			log.Printf("Failed to write response body to file: %s\n", err)
 		} else {
