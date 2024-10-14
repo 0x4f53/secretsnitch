@@ -42,24 +42,24 @@ func main() {
 	}
 
 	if *github {
-		patches := getPatchLinks(*to, *from)
-		cachePatchLinks(patches)
-		fetchFromUrlList(patchCache)
+		patches := getGitHubPatchLinks(*to, *from)
+		cacheGitHubPatchLinks(patches)
+		fetchFromUrlList(gitHubPatchCache)
 		files, _ := listCachedFiles()
 		ScanFiles(files)
-		os.RemoveAll(patchCache)
-		os.RemoveAll(commitsDirectory)
+		os.RemoveAll(gitHubPatchCache)
+		os.RemoveAll(gitHubCommitsDirectory)
 		return
 	}
 
 	if *gitlab {
-		patches := getPatchLinks(*to, *from)
-		cachePatchLinks(patches)
-		fetchFromUrlList(patchCache)
+		patches := getGitLabPatchLinks()
+		cacheGitLabPatchLinks(patches)
+		fetchFromUrlList(gitLabPatchCache)
 		files, _ := listCachedFiles()
 		ScanFiles(files)
-		os.RemoveAll(patchCache)
-		os.RemoveAll(commitsDirectory)
+		os.RemoveAll(gitLabPatchCache)
+		os.RemoveAll(gitLabCommitsDirectory)
 		return
 	}
 

@@ -5,6 +5,8 @@ github.com/0x4f53/github-patches v0.0.0-20241014210649-65e5b5b24fce h1:FQATUrxIp
 github.com/0x4f53/github-patches v0.0.0-20241014210649-65e5b5b24fce/go.mod h1:gFxyK6x366/fcLPaGZ0KWeiit7/HPyM/qLAxWd8zzvc=
 github.com/0x4f53/github-patches v0.0.0-20241014211915-19a2520c9b5f h1:KlRxP+H3xmfMvOFVmZXq8axBrVQZlFzsLJ0dl0XwRMU=
 github.com/0x4f53/github-patches v0.0.0-20241014211915-19a2520c9b5f/go.mod h1:gFxyK6x366/fcLPaGZ0KWeiit7/HPyM/qLAxWd8zzvc=
+github.com/0x4f53/gitlab-patches v0.0.0-20241014124052-a194b5dc6b69 h1:JlXPz7rl5YCMnsRJZ4DsFv92YuTSKUvIdxlfBGHO8X8=
+github.com/0x4f53/gitlab-patches v0.0.0-20241014124052-a194b5dc6b69/go.mod h1:B+Q00O9TxCA4hkpk0mLQM226qTeP/cjcdqNEwG+vL20=
 github.com/0x4f53/textsubs v0.0.0-20240822231959-6b42e2197761 h1:zS3mP9WIX/XhHCijbj1ne9T7gyUMEXmW+z7DIH2LVYA=
 github.com/0x4f53/textsubs v0.0.0-20240822231959-6b42e2197761/go.mod h1:LHlDfz1hP1RagyTkOaoYzuM7FQE6z2JSgEbWXjtxAmk=
 github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8/go.mod h1:I0gYDMZ6Z5GRU7l58bNFSkPTFN6Yl12dsUlAZ8xy98g=

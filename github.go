@@ -4,13 +4,13 @@ import (
 	"github.com/0x4f53/github-patches"
 )
 
-var patchCache = ".githubPatchCache"
-var commitsDirectory = ".githubCommits"
+var gitHubPatchCache = ".githubPatchCache"
+var gitHubCommitsDirectory = ".githubCommits"
 
-func getPatchLinks (to string, from string) []string {
+func getGitHubPatchLinks (to string, from string) []string {
 	var patches []string
-	githubPatches.GetCommitsInRange(commitsDirectory, to, from)
-	files, _ := getAllFiles(commitsDirectory)
+	githubPatches.GetCommitsInRange(gitHubCommitsDirectory, to, from)
+	files, _ := getAllFiles(gitHubCommitsDirectory)
 	for _, file := range files {
 		events, _ := githubPatches.ParseJSONFile(file)
 		for _, event := range events {
@@ -22,8 +22,8 @@ func getPatchLinks (to string, from string) []string {
 	return patches
 }
 
-func cachePatchLinks(links []string) {
+func cacheGitHubPatchLinks(links []string) {
 	for _, link := range links {
-		appendToFile(patchCache, link)
+		appendToFile(gitHubPatchCache, link)
 	}
 }

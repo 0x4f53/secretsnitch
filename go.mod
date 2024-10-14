@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/0x4f53/gitlab-patches v0.0.0-20241014124052-a194b5dc6b69 // indirect
 	github.com/PuerkitoBio/goquery v1.10.0 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/antchfx/htmlquery v1.3.3 // indirect
