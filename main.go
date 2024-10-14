@@ -63,4 +63,13 @@ func main() {
 		return
 	}
 
+	if *phishtank {
+		savePhishtankDataset()
+		fetchFromUrlList(phishtankURLCache)
+		files, _ := listCachedFiles()
+		ScanFiles(files)
+		os.RemoveAll(phishtankURLCache)
+		return
+	}
+
 }

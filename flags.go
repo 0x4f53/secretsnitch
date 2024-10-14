@@ -43,7 +43,7 @@ func customUsage() {
 	fmt.Println("")
 	fmt.Println("  --gitlab           Scan the last 100 public GitLab commits")
 	fmt.Println("")
-	fmt.Println("  --phishtank        Scan reported URLs from phishtank.org")
+	fmt.Println("  --phishtank        Scan reported phishtank.org URLs from the past day")
 	fmt.Println("")
 	fmt.Println("  --url              Single URL to scan")
 	fmt.Println("  --urlList          A file containing a list of URLs to scan for secrets")
