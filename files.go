@@ -18,6 +18,7 @@ import (
 var (
 	cacheDir           = ".urlCache/"
 	cacheFileExtension = ".cache"
+	defaultOutputDir   = "output.json"
 )
 
 func readLines(filename string) ([]string, error) {

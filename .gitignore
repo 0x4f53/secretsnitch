@@ -10,6 +10,7 @@
 *.test
 *.out
 *.txt
+*.json
 *.gz
 
 go.work
@@ -20,5 +21,8 @@ _generated/
 _generated_files/
 .urlCache/
 .githubCache/
+.githubCommits/
+
+.githubPatchCache
 
 secretsnitch

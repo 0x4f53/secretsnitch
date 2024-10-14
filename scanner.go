@@ -50,6 +50,7 @@ func getMatchingLines(input string, pattern string) ([]string, error) {
 func grabURLs(text string) []string {
 
 	var captured []string
+	location := substringBeforeFirst(text, "---")
 
 	scanner := bufio.NewScanner(strings.NewReader(text))
 
@@ -59,7 +60,7 @@ func grabURLs(text string) []string {
 		line := scanner.Text()
 		urls := rx.FindAllString(line, -1)
 		for _, url := range urls {
-			if strings.Contains(url, "://") {
+			if strings.Contains(url, "://") && url != location {
 				captured = append(captured, url)
 			}
 		}
@@ -93,6 +94,8 @@ func FindSecrets(text string) Secret {
 			if len(matches) > 0 {
 
 				tags = append(tags, "regexMatch")
+				url := substringBeforeFirst(text, "---")
+				capturedUrls := grabURLs(text)
 
 				entropy := EntropyPercentage(text)
 				if entropy > 60 {
@@ -105,11 +108,11 @@ func FindSecrets(text string) Secret {
 					Provider:        service.Name,
 					ServiceName:     keyName,
 					Entropy:         entropy,
-					URL:             substringBeforeFirst(text, "---"),
+					URL:             url,
 					Matches:         matches,
 					CapturedDomains: domains,
-					CapturedURLs:    grabURLs(text),
-					Tags:            tags,
+					CapturedURLs:    removeDuplicates(capturedUrls),
+					Tags:            removeDuplicates(tags),
 				}
 			}
 		}
@@ -133,7 +136,7 @@ func scanFile(filePath string, wg *sync.WaitGroup) {
 
 	if len(secrets.Matches) > 0 {
 		unindented, _ := json.Marshal(secrets)
-		appendToFile("output.json", string(unindented))
+		appendToFile(*outputFile, string(unindented))
 		indented, _ := json.MarshalIndent(secrets, "", "	")
 		fmt.Println(string(indented))
 	}

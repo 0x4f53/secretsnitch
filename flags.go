@@ -27,7 +27,7 @@ var (
 	phishtank *bool
 
 	// output file name
-	output *string
+	outputFile *string
 )
 
 func customUsage() {
@@ -69,7 +69,7 @@ func setFlags() {
 
 	phishtank = pflag.Bool("phishtank", false, "")
 
-	directory = pflag.String("output", "", "")
+	outputFile = pflag.String("output", defaultOutputDir, "")
 
 	pflag.Usage = customUsage
 
