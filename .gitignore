@@ -10,6 +10,7 @@
 *.test
 *.out
 *.txt
+*.gz
 
 go.work
 go.work.sum
@@ -17,6 +18,7 @@ go.work.sum
 .temp/
 _generated/
 _generated_files/
-.urlCache
+.urlCache/
+.githubCache/
 
 secretsnitch

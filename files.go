@@ -9,10 +9,8 @@ package main
 
 import (
 	"bufio"
-	"crypto/md5"
 	"fmt"
 	"log"
-	"math/rand"
 	"os"
 )
 
@@ -39,20 +37,6 @@ func readLines(filename string) ([]string, error) {
 	}
 
 	return lines, nil
-}
-
-func randomString(n int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(b)
-}
-
-func md5Hash(text string) string {
-	data := []byte(text)
-	return fmt.Sprintf("%x", md5.Sum(data))
 }
 
 func makeDir(dirName string) error {

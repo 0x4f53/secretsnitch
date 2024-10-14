@@ -8,25 +8,19 @@ import (
 	"regexp"
 	"strings"
 	"sync"
+
+	"github.com/0x4f53/textsubs"
 )
 
 type Secret struct {
-	Provider        string
-	ServiceName     string
-	Matches         []string
-	//CacheFile       string
-	URL             string
-	//CapturedDomains []string
+	Provider           string
+	ServiceName        string
+	Matches            []string
+	CacheFile          string
+	URL                string
+	CapturedSubdomains []string
 	//CapturedURLs    []string
 	//Metadata        []string
-}
-
-func substringBeforeFirst(input string, delimiter string) string {
-	index := strings.Index(input, delimiter)
-	if index == -1 {
-		return input
-	}
-	return input[:index]
 }
 
 func getMatchingLines(input string, pattern string) ([]string, error) {
@@ -47,26 +41,35 @@ func getMatchingLines(input string, pattern string) ([]string, error) {
 
 }
 
-func findSecrets(file string) {
+func findSecrets(file string) Secret {
+
+	var secret Secret
+
+	subdomains, _ := textsubs.SubdomainsOnly(file, false)
+	subdomains = textsubs.Resolve(subdomains)
+
 	for _, service := range signatures {
 		for keyName, regex := range service.Keys {
 			matches, err := getMatchingLines(file, regex)
 			if err != nil {
 				//log.Printf("Error reading data: %v\n", err)
-				return
+				return secret
 			}
 
 			if len(matches) > 0 {
-				secret := Secret{
-					Provider:    service.Name,
-					ServiceName: keyName,
-					URL:         substringBeforeFirst(file, "---"),
-					Matches:     matches,
+				secret = Secret{
+					Provider:           service.Name,
+					ServiceName:        keyName,
+					URL:                substringBeforeFirst(file, "---"),
+					Matches:            matches,
+					CapturedSubdomains: subdomains,
 				}
-				fmt.Println(secret)
 			}
 		}
 	}
+
+	return secret
+
 }
 
 func scanFile(filePath string, wg *sync.WaitGroup) {
@@ -78,7 +81,13 @@ func scanFile(filePath string, wg *sync.WaitGroup) {
 		return
 	}
 
-	findSecrets(string(data))
+	secrets := findSecrets(string(data))
+	secrets.CacheFile = filePath
+
+	if len(secrets.Matches) > 0 {
+		fmt.Println(secrets)
+	}
+
 }
 
 func readCache(files []string) {

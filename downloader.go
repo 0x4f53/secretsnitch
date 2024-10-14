@@ -83,14 +83,3 @@ func readInputFile(filename string) {
 		log.Fatalf("Error reading URLs: %s\n", err)
 	}
 }
-
-func readInputURL(url string) {
-
-	var wg sync.WaitGroup
-
-	wg.Add(1)
-	scrapeURL(url, &wg)
-
-	wg.Wait()
-
-}
