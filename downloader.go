@@ -36,22 +36,22 @@ func scrapeURL(url string, wg *sync.WaitGroup) {
 		cacheFileName := md5Hash(url)[0:8]
 		err := saveToCache(cacheFileName, responseString)
 		if err != nil {
-			log.Printf("Failed to write response body to file: %s\n", err)
+			//log.Printf("Failed to write response body to file: %s\n", err)
 		} else {
-			log.Printf("Content from %s saved to %s\n", url, cacheDir)
+			//log.Printf("Content from %s saved to %s\n", url, cacheDir)
 		}
 	})
 	err := c.Visit(url)
 	if err != nil {
-		log.Printf("Failed to visit URL %s: %s\n", url, err)
+		//log.Printf("Failed to visit URL %s: %s\n", url, err)
 	}
 
 }
 
-func readInputFile(filename string) {
+func fetchFromUrlList(filename string) {
 	file, err := os.Open(filename)
 	if err != nil {
-		log.Fatalf("Failed to open file: %s\n", err)
+		//log.Fatalf("Failed to open file: %s\n", err)
 	}
 	defer file.Close()
 
@@ -80,6 +80,6 @@ func readInputFile(filename string) {
 	wg.Wait()
 
 	if err := scanner.Err(); err != nil {
-		log.Fatalf("Error reading URLs: %s\n", err)
+		//log.Fatalf("Error reading URLs: %s\n", err)
 	}
 }

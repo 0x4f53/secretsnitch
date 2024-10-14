@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 var (
@@ -77,4 +78,25 @@ func listCachedFiles() ([]string, error) {
 		}
 	}
 	return fileList, err
+}
+func appendToFile(filePath string, text string) error {
+	dir := filepath.Dir(filePath)
+
+	if dir != "." {
+		if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+			return fmt.Errorf("failed to create directories: %w", err)
+		}
+	}
+
+	file, err := os.OpenFile(filePath, os.O_APPEND|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return fmt.Errorf("failed to open file: %w", err)
+	}
+	defer file.Close()
+
+	if _, err := file.WriteString(text + "\n"); err != nil {
+		return fmt.Errorf("failed to write to file: %w", err)
+	}
+
+	return nil
 }
