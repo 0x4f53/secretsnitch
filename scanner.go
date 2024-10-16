@@ -16,17 +16,21 @@ import (
 )
 
 type Secret struct {
+	Provider    string
+	ServiceName string
+	Secret      string
+	Entropy     float64
+	Tags        []string
+}
+
+type ToolData struct {
 	Tool            string
 	ScanTimestamp   string
-	Provider        string
-	ServiceName     string
-	Matches         []string
-	Entropy         float64
+	Secrets         []Secret
 	CacheFile       string
-	URL             string
+	SourceUrl       string
 	CapturedDomains []string
 	CapturedURLs    []string
-	Tags            []string
 }
 
 func getMatchingLines(input string, pattern string) ([]string, error) {
@@ -41,6 +45,14 @@ func getMatchingLines(input string, pattern string) ([]string, error) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		matches = append(matches, re.FindStringSubmatch(line)...)
+	}
+
+	if len(matches) == 0 {
+		values := grabDeclaredStringValues(input)
+		for _, value := range values {
+			matches = append(matches, re.FindStringSubmatch(value)...)
+			matches = removeDuplicates(matches)
+		}
 	}
 
 	return matches, nil
@@ -67,58 +79,72 @@ func grabURLs(text string) []string {
 	}
 
 	if err := scanner.Err(); err != nil {
-		fmt.Printf("error reading string: %s\n", err)
+		//fmt.Printf("error reading string: %s\n", err)
 	}
 
 	return captured
 
 }
 
-func FindSecrets(text string) Secret {
+func FindSecrets(text string) ToolData {
 
-	var secret Secret
+	var output ToolData
+	var secrets []Secret
 
 	var tags []string
 
 	domains, _ := textsubs.DomainsOnly(text, false)
 	domains = textsubs.Resolve(domains)
 
-	for _, service := range signatures {
-		for keyName, regex := range service.Keys {
+	for _, provider := range signatures {
+		for service, regex := range provider.Keys {
 			matches, err := getMatchingLines(text, regex)
 			if err != nil {
 				//log.Printf("Error reading data: %v\n", err)
-				return secret
+				return output
 			}
 
 			if len(matches) > 0 {
 
-				tags = append(tags, "regexMatch")
-				url := substringBeforeFirst(text, "---")
-				capturedUrls := grabURLs(text)
+				matches = removeDuplicates(matches)
 
-				entropy := EntropyPercentage(text)
-				if entropy > 60 {
-					tags = append(tags, "entropic")
+				for _, match := range matches {
+
+					tags = append(tags, "regexMatched")
+
+					entropy := EntropyPercentage(text)
+					if entropy > 60 {
+						tags = append(tags, "highEntropy")
+					}
+
+					secret := Secret{
+						Provider:    provider.Name,
+						ServiceName: service,
+						Secret:      match,
+						Entropy:     EntropyPercentage(text),
+						Tags:        removeDuplicates(tags),
+					}
+
+					secrets = append(secrets, secret)
+
 				}
 
-				secret = Secret{
+				sourceUrl := substringBeforeFirst(text, "---")
+				capturedUrls := grabURLs(text)
+
+				output = ToolData{
 					Tool:            "secretsnitch",
 					ScanTimestamp:   time.Now().UTC().Format("2006-01-02T15:04:05.000Z07:00"),
-					Provider:        service.Name,
-					ServiceName:     keyName,
-					Entropy:         entropy,
-					URL:             url,
-					Matches:         matches,
+					SourceUrl:       sourceUrl,
+					Secrets:         secrets,
 					CapturedDomains: domains,
 					CapturedURLs:    removeDuplicates(capturedUrls),
-					Tags:            removeDuplicates(tags),
 				}
 			}
 		}
 	}
 
-	return secret
+	return output
 
 }
 
@@ -134,7 +160,7 @@ func scanFile(filePath string, wg *sync.WaitGroup) {
 	secrets := FindSecrets(string(data))
 	secrets.CacheFile = filePath
 
-	if len(secrets.Matches) > 0 {
+	if len(secrets.Secrets) > 0 {
 		unindented, _ := json.Marshal(secrets)
 		appendToFile(*outputFile, string(unindented))
 		indented, _ := json.MarshalIndent(secrets, "", "	")

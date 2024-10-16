@@ -13,6 +13,8 @@
 *.json
 *.gz
 
+test/
+
 go.work
 go.work.sum
 
