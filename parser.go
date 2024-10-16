@@ -31,7 +31,7 @@ func grabDeclaredStringValues(text string) []string {
 	matches := re.FindAllString(text, -1)
 	for _, match := range matches {
 		if !containsBlacklisted(match) {
-			capturedStrings = append(capturedStrings, match)
+			capturedStrings = append(capturedStrings, strings.Trim(match, "'\"`"))
 		}
 	}
 

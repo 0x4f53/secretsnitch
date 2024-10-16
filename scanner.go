@@ -6,12 +6,12 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"regexp"
 	"strings"
 	"sync"
 	"time"
 
 	"github.com/0x4f53/textsubs"
+	"github.com/dlclark/regexp2"
 	"mvdan.cc/xurls/v2"
 )
 
@@ -34,26 +34,35 @@ type ToolData struct {
 }
 
 func getMatchingLines(input string, pattern string) ([]string, error) {
-	re, err := regexp.Compile(pattern)
-	if err != nil {
-		return nil, err
-	}
+
+	// This is not the regular golang library. It supports lookaheads and stuff.
+	re := regexp2.MustCompile(pattern, 0)
 
 	var matches []string
 
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	for scanner.Scan() {
 		line := scanner.Text()
-		matches = append(matches, re.FindStringSubmatch(line)...)
-	}
-
-	if len(matches) == 0 {
-		values := grabDeclaredStringValues(input)
+		values := grabDeclaredStringValues(line)
 		for _, value := range values {
-			matches = append(matches, re.FindStringSubmatch(value)...)
-			matches = removeDuplicates(matches)
+			match, _ := re.MatchString(value)
+			if match {
+				matches = append(matches, value)
+			}
 		}
 	}
+
+	if err := scanner.Err(); err != nil && len(matches) == 0 {
+		values := grabDeclaredStringValues(input)
+		for _, value := range values {
+			match, _ := re.MatchString(value)
+			if match {
+				matches = append(matches, value)
+			}
+		}
+	}
+
+	matches = removeDuplicates(matches)
 
 	return matches, nil
 
@@ -112,16 +121,23 @@ func FindSecrets(text string) ToolData {
 
 					tags = append(tags, "regexMatched")
 
-					entropy := EntropyPercentage(text)
-					if entropy > 60 {
+					entropy := EntropyPercentage(match)
+					if entropy > 66.6 {
 						tags = append(tags, "highEntropy")
+					}
+
+					// todo: modify this to look at the variable named before the captured string and see if THAT
+					// has the provider and/or service name or not.
+					providerString := strings.ToLower(strings.Split(provider.Name, ".")[0])
+					if strings.Contains(text, providerString) {
+						tags = append(tags, "providerDetected")
 					}
 
 					secret := Secret{
 						Provider:    provider.Name,
 						ServiceName: service,
 						Secret:      match,
-						Entropy:     EntropyPercentage(text),
+						Entropy:     entropy,
 						Tags:        removeDuplicates(tags),
 					}
 

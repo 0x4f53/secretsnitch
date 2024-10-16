@@ -2,7 +2,7 @@
 - Amazon:
   - Access Key: (?:A3T[A-Z0-9]|AKIA|AGPA|AIDA|AROA|AIPA|ANPA|ANVA|ASIA|ABIA|ACCA)[A-Z0-9]{16}
   # - Secret Access Key: (?i)secret(_access_key|accesskey)[^,.{}()<>?*&:%@!\/= \n]{0,20}\s*[:=]\s*[\w0-9-+=\/\""'][^\s\n.:{}()<>?*&:%@!]{38,42}
-  - Secret Access Key: \b[a-zA-Z0-9]{40}\b
+  - Secret Access Key: ^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])[a-zA-Z0-9]{40,42}$
   - Cognito User Pool ID: (?i)us-[a-z]{2,}-[a-z]{4,}-\d{1,}
   - RDS Password: (?i)(rds\-master\-password|db\-password)[^\"'`\n]{0,40}[\"'`\n]{0,3}[a-zA-Z0-9@#*+=]{8,}
   - S3 Private Key: (?i)(AWS_S3_PRIVATE_KEY|s3_key)[^\"'`\n]{0,40}[\"'`\n]{0,3}[a-zA-Z0-9/+=]{40}
@@ -90,7 +90,7 @@
 
 - Docker:
   - Hub Access Token: dckr_pat_[a-zA-Z0-9_=-]{24,32}
-  - Swarm Join Token: (?i)(SWMTKN-[a-z0-9-[A-Za-z0-9]+)
+  - Swarm Join Token: (?i)(SWMTKN-[a-z0-9A-Z]+)
   - Swarm Unlock Token: (?i)(swmkey-1-[A-Za-z0-9+_-]{30,50})
 
 - Meta:

@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 
+	"github.com/dlclark/regexp2"
 	"gopkg.in/yaml.v3"
 )
 
@@ -38,6 +39,7 @@ func readSignatures() []Signature {
 			keyMap := make(map[string]string)
 			for _, keyPair := range keys {
 				for keyName, keyValue := range keyPair {
+					regexp2.MustCompile(keyValue, 0)
 					keyMap[keyName] = keyValue
 				}
 			}
