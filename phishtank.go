@@ -13,6 +13,16 @@ var phishtankURL = "http://data.phishtank.com/data/online-valid.csv"
 
 func savePhishtankDataset() error {
 	resp, err := http.Get(phishtankURL)
+
+	switch resp.StatusCode {
+	case 404:
+		fmt.Println("Phishtank is down. Please try again later.")
+		os.Exit(-1)
+	case 429:
+		fmt.Println("Phishtank has rate-limited you. Please try again.")
+		os.Exit(-1)
+	}
+
 	if err != nil {
 		return fmt.Errorf("failed to download file: %w", err)
 	}
