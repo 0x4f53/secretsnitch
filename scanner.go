@@ -141,6 +141,8 @@ func FindSecrets(text string) ToolData {
 						Tags:        removeDuplicates(tags),
 					}
 
+					// Remove this in the future when working with 
+					// env files and stuff
 					if strings.Contains(text, providerString) {
 						secrets = append(secrets, secret)
 					}
