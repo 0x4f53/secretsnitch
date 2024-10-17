@@ -26,6 +26,9 @@ var (
 	//phishtank module
 	phishtank *bool
 
+	//recursively crawl URLs on page.
+	recurse *bool
+
 	// output file name
 	outputFile *string
 )
@@ -35,7 +38,7 @@ func customUsage() {
 	fmt.Println("A lightning-fast secret scanner in Golang!\n")
 	fmt.Fprintf(os.Stderr, "Usage:\n%s [input options] [output options]\n", os.Args[0])
 	fmt.Println("")
-	fmt.Println("Input options:")
+	fmt.Println("Input (pick at least one):")
 	fmt.Println("")
 	fmt.Println("  --github           Scan public GitHub commits from the past hour")
 	fmt.Println("    --from           (optional) Timestamp to start from (format: 2006-01-02-15)")
@@ -50,9 +53,16 @@ func customUsage() {
 	fmt.Println("")
 	fmt.Println("  --directory        Scan an entire directory")
 	fmt.Println("")
-	fmt.Println("Output options:")
+	fmt.Println("Extra options:")
 	fmt.Println("")
 	fmt.Println("  --output           Save scan output to file")
+	fmt.Println("Optional arguments:")
+	fmt.Println("")
+	fmt.Println("  --output           Save scan output to file")
+	fmt.Println("")
+	fmt.Println("  --recurse          Crawl URLs and hyperlinks inside page")
+	fmt.Println("")
+	fmt.Println("  --recurseDepth     Crawl URLs and hyperlinks inside page up to a certain limit")
 	fmt.Println("")
 }
 
