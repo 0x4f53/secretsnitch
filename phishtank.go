@@ -1,6 +1,7 @@
 package main
 
 import (
+	"compress/gzip"
 	"encoding/csv"
 	"fmt"
 	"io"
@@ -9,10 +10,14 @@ import (
 )
 
 var phishtankURLCache = "./phishtankURLCache"
-var phishtankURL = "http://data.phishtank.com/data/online-valid.csv"
+var phishtankURL = "http://data.phishtank.com/data/online-valid.csv.gz"
 
 func savePhishtankDataset() error {
 	resp, err := http.Get(phishtankURL)
+	if err != nil {
+		return fmt.Errorf("failed to download file: %w", err)
+	}
+	defer resp.Body.Close()
 
 	switch resp.StatusCode {
 	case 404:
@@ -23,16 +28,17 @@ func savePhishtankDataset() error {
 		os.Exit(-1)
 	}
 
-	if err != nil {
-		return fmt.Errorf("failed to download file: %w", err)
-	}
-	defer resp.Body.Close()
-
 	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("bad status: %s", resp.Status)
 	}
 
-	reader := csv.NewReader(resp.Body)
+	gzipReader, err := gzip.NewReader(resp.Body)
+	if err != nil {
+		return fmt.Errorf("failed to create gzip reader: %w", err)
+	}
+	defer gzipReader.Close()
+
+	reader := csv.NewReader(gzipReader)
 
 	outputFile, err := os.Create(phishtankURLCache)
 	if err != nil {

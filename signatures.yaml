@@ -113,7 +113,7 @@
 - Stripe:
   - Read-only Key: (?i)rk_live_[a-zA-Z0-9]{20,30}
   - Secret Key: (?i)sk_live_[a-zA-Z0-9]{20,30}
-  - Publishable Key: (?i)pk_live_[a-zA-Z0-9]{20,30}
+  # - Publishable Key: (?i)pk_live_[a-zA-Z0-9]{20,30}
 
 - PayPal:
   - Access Token: (?:^|['\"])access_token\$production\$([0-9a-zA-Z]{28,42})
@@ -130,7 +130,8 @@
   - API Key: (?i)(FLWSECK-[0-9a-z]{32}-X)
 
 - DataDog:
-  - API Key: (?i)(datadog_api|dd_api|dd_key|ddapi|ddkey|datadogapi|datadog_key|datadogkey|datadog).+(=|:){0,1}[01234567890abcdef]{32}
+  - Client Token: ^pub[0-9a-f]{32}$
+  # - App ID: ^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
 
 - Spotify:
   - Device Cookie: (?i)sp_dc=[\w_-]{128,256}

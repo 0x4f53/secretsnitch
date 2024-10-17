@@ -25,6 +25,8 @@ _generated_files/
 .githubCache/
 .githubCommits/
 
+phishtankURLCache
+
 .githubPatchCache
 
 secretsnitch
