@@ -129,7 +129,7 @@ func FindSecrets(text string) ToolData {
 					// todo: modify this to look at the variable named before the captured string and see if THAT
 					// has the provider and/or service name or not.
 					providerString := strings.ToLower(strings.Split(provider.Name, ".")[0])
-					if strings.Contains(text, providerString) {
+					if strings.Contains(strings.ToLower(text), providerString) {
 						tags = append(tags, "providerDetected")
 					}
 
@@ -141,7 +141,9 @@ func FindSecrets(text string) ToolData {
 						Tags:        removeDuplicates(tags),
 					}
 
-					secrets = append(secrets, secret)
+					if strings.Contains(text, providerString) {
+						secrets = append(secrets, secret)
+					}
 
 				}
 

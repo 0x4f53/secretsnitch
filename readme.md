@@ -2,6 +2,7 @@
 
 A lightning-fast secret scanner in Golang!
 
+```
 Usage:
 ./secretsnitch [input options] [output options]
 
@@ -23,3 +24,4 @@ Input options:
 Output options:
 
   --output           Save scan output to file
+```
