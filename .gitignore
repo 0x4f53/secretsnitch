@@ -28,5 +28,6 @@ _generated_files/
 phishtankURLCache
 
 .githubPatchCache
+.gitlabPatchCache
 
 secretsnitch
