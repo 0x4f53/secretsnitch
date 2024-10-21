@@ -5,7 +5,7 @@ Stress tested with 100k URLs from GitHub - took around 2 minutes on an i5-8350U 
 *
 */
 
-package main
+package secretsnitch
 
 import (
 	"bufio"

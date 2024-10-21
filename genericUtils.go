@@ -1,4 +1,4 @@
-package main
+package secretsnitch
 
 import (
 	"crypto/md5"

@@ -1,4 +1,4 @@
-package main
+package secretsnitch
 
 import (
 	"compress/gzip"

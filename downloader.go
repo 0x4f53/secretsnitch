@@ -5,7 +5,7 @@ Stress tested with 100k URLs from GitHub
 *
 */
 
-package main
+package secretsnitch
 
 import (
 	"bufio"
