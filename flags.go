@@ -27,7 +27,7 @@ var (
 	phishtank *bool
 
 	//recursively crawl URLs on page.
-	recurse *bool
+	recurse *int
 
 	// output file name
 	outputFile *string
@@ -40,29 +40,24 @@ func customUsage() {
 	fmt.Println("")
 	fmt.Println("Input (pick at least one):")
 	fmt.Println("")
-	fmt.Println("  --github           Scan public GitHub commits from the past hour")
-	fmt.Println("    --from           (optional) Timestamp to start from (format: 2006-01-02-15)")
-	fmt.Println("    --to             (optional) Timestamp to stop at (format: 2006-01-02-15)")
+	fmt.Println("  --github                             Scan public GitHub commits from the past hour")
+	fmt.Println("    --from                             (optional) Timestamp to start from (format: 2006-01-02-15)")
+	fmt.Println("    --to                               (optional) Timestamp to stop at (format: 2006-01-02-15)")
 	fmt.Println("")
-	fmt.Println("  --gitlab           Scan the last 100 public GitLab commits")
+	fmt.Println("  --gitlab                             Scan the last 100 public GitLab commits")
 	fmt.Println("")
-	fmt.Println("  --phishtank        Scan reported phishtank.org URLs from the past day")
+	fmt.Println("  --phishtank                          Scan reported phishtank.org URLs from the past day")
 	fmt.Println("")
-	fmt.Println("  --url              Single URL to scan")
-	fmt.Println("  --urlList          A file containing a list of URLs to scan for secrets")
+	fmt.Println("  --url=<http://url>                   A single URL to scan")
+	fmt.Println("  --urlList=<file containing URLs>     A line-separated file containing a list of URLs to scan for secrets")
 	fmt.Println("")
-	fmt.Println("  --directory        Scan an entire directory")
+	fmt.Println("  --directory=<directory/with/files/>  Scan an entire directory")
 	fmt.Println("")
-	fmt.Println("Extra options:")
-	fmt.Println("")
-	fmt.Println("  --output           Save scan output to file")
 	fmt.Println("Optional arguments:")
 	fmt.Println("")
-	fmt.Println("  --output           Save scan output to file")
+	fmt.Println("  --output                             Save scan output to a custom location")
 	fmt.Println("")
-	fmt.Println("  --recurse          Crawl URLs and hyperlinks inside page")
-	fmt.Println("")
-	fmt.Println("  --recurseDepth     Crawl URLs and hyperlinks inside page up to a certain limit")
+	fmt.Println("  --recurse=<number>                   Crawl URLs and hyperlinks inside page (default: 1 level)")
 	fmt.Println("")
 }
 
@@ -87,7 +82,7 @@ func setFlags() {
 
 	if !*github && !*gitlab && !*phishtank && *url == "" && *urlList == "" && *directory == "" {
 		pflag.Usage()
-		fmt.Println("Come on, you've got to pick something!")
+		fmt.Println("Come on, you'll have to pick some option!")
 		os.Exit(-1)
 	}
 
