@@ -1,4 +1,4 @@
-package secretsnitch
+package main
 
 import (
 	"os"
@@ -16,8 +16,8 @@ func main() {
 	signatures = readSignatures()
 
 	if *urlList != "" {
-		fetchFromUrlList(*urlList)
-		files, _ := listCachedFiles()
+		FetchFromUrlList(*urlList)
+		files, _ := ListCachedFiles()
 		ScanFiles(files)
 		return
 	}
@@ -44,8 +44,8 @@ func main() {
 	if *github {
 		patches := getGitHubPatchLinks(*to, *from)
 		cacheGitHubPatchLinks(patches)
-		fetchFromUrlList(gitHubPatchCache)
-		files, _ := listCachedFiles()
+		FetchFromUrlList(gitHubPatchCache)
+		files, _ := ListCachedFiles()
 		ScanFiles(files)
 		os.RemoveAll(gitHubPatchCache)
 		os.RemoveAll(gitHubCommitsDirectory)
@@ -55,8 +55,8 @@ func main() {
 	if *gitlab {
 		patches := getGitLabPatchLinks()
 		cacheGitLabPatchLinks(patches)
-		fetchFromUrlList(gitLabPatchCache)
-		files, _ := listCachedFiles()
+		FetchFromUrlList(gitLabPatchCache)
+		files, _ := ListCachedFiles()
 		ScanFiles(files)
 		os.RemoveAll(gitLabPatchCache)
 		os.RemoveAll(gitLabCommitsDirectory)
@@ -65,8 +65,8 @@ func main() {
 
 	if *phishtank {
 		savePhishtankDataset()
-		fetchFromUrlList(phishtankURLCache)
-		files, _ := listCachedFiles()
+		FetchFromUrlList(phishtankURLCache)
+		files, _ := ListCachedFiles()
 		ScanFiles(files)
 		os.RemoveAll(phishtankURLCache)
 		return

@@ -1,4 +1,4 @@
-package secretsnitch
+package main
 
 import (
 	"github.com/0x4f53/github-patches"

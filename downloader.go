@@ -5,7 +5,7 @@ Stress tested with 100k URLs from GitHub
 *
 */
 
-package secretsnitch
+package main
 
 import (
 	"bufio"
@@ -48,7 +48,7 @@ func scrapeURL(url string, wg *sync.WaitGroup) {
 
 }
 
-func fetchFromUrlList(filename string) {
+func FetchFromUrlList(filename string) {
 	file, err := os.Open(filename)
 	if err != nil {
 		//log.Fatalf("Failed to open file: %s\n", err)

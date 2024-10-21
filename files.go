@@ -5,7 +5,7 @@ Stress tested with 100k URLs from GitHub - took around 2 minutes on an i5-8350U 
 *
 */
 
-package secretsnitch
+package main
 
 import (
 	"bufio"
@@ -65,7 +65,7 @@ func fileExists(location string) bool {
 	return false
 }
 
-func listCachedFiles() ([]string, error) {
+func ListCachedFiles() ([]string, error) {
 	var fileList []string
 	files, err := os.ReadDir(cacheDir)
 	if err != nil {
