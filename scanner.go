@@ -18,6 +18,7 @@ import (
 type Secret struct {
 	Provider    string
 	ServiceName string
+	Variable    string
 	Secret      string
 	Entropy     float64
 	Tags        []string
@@ -33,36 +34,34 @@ type ToolData struct {
 	CapturedURLs    []string
 }
 
-func getMatchingLines(input string, pattern string) ([]string, error) {
+func getMatchingLines(input string, pattern string) (map[string]string, error) {
 
 	// This is not the regular golang library. It supports lookaheads and stuff.
 	re := regexp2.MustCompile(pattern, 0)
 
-	var matches []string
+	matches := make(map[string]string)
 
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	for scanner.Scan() {
 		line := scanner.Text()
-		values := grabDeclaredStringValues(line)
-		for _, value := range values {
+		values, _ := extractKeyValuePairs(line)
+		for key, value := range values {
 			match, _ := re.MatchString(value)
-			if match {
-				matches = append(matches, value)
+			if match && !containsBlacklisted(value) {
+				matches[key] = value
 			}
 		}
 	}
 
 	if err := scanner.Err(); err != nil && len(matches) == 0 {
-		values := grabDeclaredStringValues(input)
-		for _, value := range values {
+		values, _ := extractKeyValuePairs(input)
+		for key, value := range values {
 			match, _ := re.MatchString(value)
 			if match {
-				matches = append(matches, value)
+				matches[key] = value
 			}
 		}
 	}
-
-	matches = removeDuplicates(matches)
 
 	return matches, nil
 
@@ -115,13 +114,11 @@ func FindSecrets(text string) ToolData {
 
 			if len(matches) > 0 {
 
-				matches = removeDuplicates(matches)
-
-				for _, match := range matches {
+				for key, value := range matches {
 
 					tags = append(tags, "regexMatched")
 
-					entropy := EntropyPercentage(match)
+					entropy := EntropyPercentage(value)
 					if entropy > 66.6 {
 						tags = append(tags, "highEntropy")
 					}
@@ -136,17 +133,13 @@ func FindSecrets(text string) ToolData {
 					secret := Secret{
 						Provider:    provider.Name,
 						ServiceName: service,
-						Secret:      match,
+						Variable:    key,
+						Secret:      value,
 						Entropy:     entropy,
 						Tags:        removeDuplicates(tags),
 					}
 
-					// Remove this in the future when working with 
-					// env files and stuff
-					if strings.Contains(text, providerString) {
-						secrets = append(secrets, secret)
-					}
-
+					secrets = append(secrets, secret)
 				}
 
 				sourceUrl := substringBeforeFirst(text, "---")
@@ -160,6 +153,7 @@ func FindSecrets(text string) ToolData {
 					CapturedDomains: domains,
 					CapturedURLs:    removeDuplicates(capturedUrls),
 				}
+
 			}
 		}
 	}

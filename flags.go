@@ -11,6 +11,9 @@ var (
 	// directory module
 	directory *string
 
+	// file module
+	file *string
+
 	// url module
 	url     *string
 	urlList *string
@@ -52,6 +55,7 @@ func customUsage() {
 	fmt.Println("  --urlList=<file containing URLs>     A line-separated file containing a list of URLs to scan for secrets")
 	fmt.Println("")
 	fmt.Println("  --directory=<directory/with/files/>  Scan an entire directory")
+	fmt.Println("  --file=<file.js>  					Scan a file")
 	fmt.Println("")
 	fmt.Println("Optional arguments:")
 	fmt.Println("")
@@ -69,6 +73,7 @@ func setFlags() {
 	url = pflag.String("url", "", "")
 	urlList = pflag.String("urlList", "", "")
 	directory = pflag.String("directory", "", "")
+	file = pflag.String("file", "", "")
 
 	gitlab = pflag.Bool("gitlab", false, "")
 
@@ -80,7 +85,7 @@ func setFlags() {
 
 	pflag.Parse()
 
-	if !*github && !*gitlab && !*phishtank && *url == "" && *urlList == "" && *directory == "" {
+	if !*github && !*gitlab && !*phishtank && *url == "" && *urlList == "" && *directory == "" && *file == "" {
 		pflag.Usage()
 		fmt.Println("Come on, you'll have to pick some option!")
 		os.Exit(-1)

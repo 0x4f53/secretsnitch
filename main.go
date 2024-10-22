@@ -41,28 +41,34 @@ func main() {
 		return
 	}
 
-	if *github {
-		patches := getGitHubPatchLinks(*to, *from)
-		cacheGitHubPatchLinks(patches)
-		fetchFromUrlList(gitHubPatchCache)
-		files, _ := listCachedFiles()
-		ScanFiles(files)
-		os.RemoveAll(gitHubPatchCache)
-		os.RemoveAll(gitHubCommitsDirectory)
+	if *file != "" {
+		ScanFiles([]string{*file})
 		return
 	}
 
-	if *gitlab {
-		patches := getGitLabPatchLinks()
-		cacheGitLabPatchLinks(patches)
-		fetchFromUrlList(gitLabPatchCache)
-		files, _ := listCachedFiles()
-		ScanFiles(files)
-		os.RemoveAll(gitLabPatchCache)
-		os.RemoveAll(gitLabCommitsDirectory)
-		return
-	}
+	/*
+		if *github {
+			patches := getGitHubPatchLinks(*to, *from)
+			cacheGitHubPatchLinks(patches)
+			fetchFromUrlList(gitHubPatchCache)
+			files, _ := listCachedFiles()
+			ScanFiles(files)
+			os.RemoveAll(gitHubPatchCache)
+			os.RemoveAll(gitHubCommitsDirectory)
+			return
+		}
 
+		if *gitlab {
+			patches := getGitLabPatchLinks()
+			cacheGitLabPatchLinks(patches)
+			fetchFromUrlList(gitLabPatchCache)
+			files, _ := listCachedFiles()
+			ScanFiles(files)
+			os.RemoveAll(gitLabPatchCache)
+			os.RemoveAll(gitLabCommitsDirectory)
+			return
+		}
+	*/
 	if *phishtank {
 		savePhishtankDataset()
 		fetchFromUrlList(phishtankURLCache)
