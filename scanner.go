@@ -104,62 +104,96 @@ func FindSecrets(text string) ToolData {
 	domains, _ := textsubs.DomainsOnly(text, false)
 	domains = textsubs.Resolve(domains)
 
-	for _, provider := range signatures {
-		for service, regex := range provider.Keys {
-			matches, err := getMatchingLines(text, regex)
-			if err != nil {
-				//log.Printf("Error reading data: %v\n", err)
-				return output
-			}
+	splitText := strings.Split(text, "{")
 
-			if len(matches) > 0 {
+	// Mutex to protect shared resources (secrets and tags)
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 
-				for key, value := range matches {
+	// Channel for worker pool
+	workerCount := 10000
+	lineChan := make(chan string, workerCount)
 
-					tags = append(tags, "regexMatched")
+	// Launch workers
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for line := range lineChan {
+				data, _ := extractKeyValuePairs(line)
 
-					entropy := EntropyPercentage(value)
-					if entropy > 66.6 {
-						tags = append(tags, "highEntropy")
+				for key, value := range data {
+					for _, provider := range signatures {
+						for service, regex := range provider.Keys {
+							re := regexp2.MustCompile(regex, 0)
+							match, _ := re.MatchString(value)
+
+							if match {
+								mu.Lock() // Lock for modifying shared resources
+								tags = append(tags, "regexMatched")
+								mu.Unlock()
+
+								entropy := EntropyPercentage(value)
+								if entropy > 66.6 {
+									mu.Lock()
+									tags = append(tags, "highEntropy")
+									mu.Unlock()
+								}
+
+								providerString := strings.ToLower(strings.Split(provider.Name, ".")[0])
+								if strings.Contains(strings.ToLower(text), providerString) {
+									mu.Lock()
+									tags = append(tags, "providerDetected")
+									mu.Unlock()
+								}
+
+								secret := Secret{
+									Provider:    provider.Name,
+									ServiceName: service,
+									Variable:    key,
+									Secret:      value,
+									Entropy:     entropy,
+									Tags:        removeDuplicates(tags),
+								}
+
+								// Protect secrets from concurrent writes
+								mu.Lock()
+								secrets = append(secrets, secret)
+								mu.Unlock()
+							}
+						}
 					}
-
-					// todo: modify this to look at the variable named before the captured string and see if THAT
-					// has the provider and/or service name or not.
-					providerString := strings.ToLower(strings.Split(provider.Name, ".")[0])
-					if strings.Contains(strings.ToLower(text), providerString) {
-						tags = append(tags, "providerDetected")
-					}
-
-					secret := Secret{
-						Provider:    provider.Name,
-						ServiceName: service,
-						Variable:    key,
-						Secret:      value,
-						Entropy:     entropy,
-						Tags:        removeDuplicates(tags),
-					}
-
-					secrets = append(secrets, secret)
 				}
-
-				sourceUrl := substringBeforeFirst(text, "---")
-				capturedUrls := grabURLs(text)
-
-				output = ToolData{
-					Tool:            "secretsnitch",
-					ScanTimestamp:   time.Now().UTC().Format("2006-01-02T15:04:05.000Z07:00"),
-					SourceUrl:       sourceUrl,
-					Secrets:         secrets,
-					CapturedDomains: domains,
-					CapturedURLs:    removeDuplicates(capturedUrls),
-				}
-
 			}
-		}
+		}()
+	}
+
+	// Send all lines to the channel for processing
+	for _, line := range splitText {
+		lineChan <- line
+	}
+
+	// Close the channel when done sending work
+	close(lineChan)
+
+	// Wait for all workers to finish
+	wg.Wait()
+
+	// Capture URLs after all processing is done
+	sourceUrl := substringBeforeFirst(text, "---")
+	capturedUrls := grabURLs(text)
+
+	// Prepare final output
+	output = ToolData{
+		Tool:            "secretsnitch",
+		ScanTimestamp:   time.Now().UTC().Format("2006-01-02T15:04:05.000Z07:00"),
+		SourceUrl:       sourceUrl,
+		Secrets:         secrets,
+		CapturedDomains: domains,
+		CapturedURLs:    removeDuplicates(capturedUrls),
 	}
 
 	return output
-
 }
 
 func scanFile(filePath string, wg *sync.WaitGroup) {

@@ -29,6 +29,7 @@ func extractKeyValuePairs(text string) (map[string]string, error) {
 
 	// Regular expressions for matching various formats
 	var reJSON = regexp.MustCompile(`"([^"]+)" *:\s*"([^"]+)"`)
+	var reJS = regexp.MustCompile(`(\w+):"([^"]+)"`)
 	var reDict = regexp.MustCompile(`'([^']+)' *:\s*'([^']+)'`)
 	var reGo = regexp.MustCompile(`\b(\w+)\s*:=\s*"([^"]+)"`)
 	var reXML = regexp.MustCompile(`<([^\/>]+)[\/]*>.*</([^\/>]+)[\/]*>`)
@@ -41,6 +42,13 @@ func extractKeyValuePairs(text string) (map[string]string, error) {
 
 		// Match JSON style key-value pairs
 		if matches := reJSON.FindAllStringSubmatch(line, -1); matches != nil {
+			for _, match := range matches {
+				keyValuePairs[match[1]] = match[2]
+			}
+		}
+
+		// Match JS style key-value pairs
+		if matches := reJS.FindAllStringSubmatch(line, -1); matches != nil {
 			for _, match := range matches {
 				keyValuePairs[match[1]] = match[2]
 			}
