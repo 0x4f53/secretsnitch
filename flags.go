@@ -30,7 +30,7 @@ var (
 	phishtank *bool
 
 	//recursively crawl URLs on page.
-	recurse *int
+	recurse *bool
 
 	// output file name
 	outputFile *string
@@ -61,7 +61,7 @@ func customUsage() {
 	fmt.Println("")
 	fmt.Println("  --output                             Save scan output to a custom location")
 	fmt.Println("")
-	fmt.Println("  --recurse=<number>                   Crawl URLs and hyperlinks inside page (default: 1 level)")
+	fmt.Println("  --recurse                   Crawl URLs and hyperlinks inside page to 1 level")
 	fmt.Println("")
 }
 
@@ -78,6 +78,7 @@ func setFlags() {
 	gitlab = pflag.Bool("gitlab", false, "")
 
 	phishtank = pflag.Bool("phishtank", false, "")
+	recurse = pflag.Bool("recurse", false, "")
 
 	outputFile = pflag.String("output", defaultOutputDir, "")
 

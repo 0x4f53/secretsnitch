@@ -48,7 +48,7 @@ func scrapeURL(url string, wg *sync.WaitGroup) {
 
 }
 
-func fetchFromUrlList(filename string) {
+func fetchFromUrlListFile(filename string) {
 	file, err := os.Open(filename)
 	if err != nil {
 		//log.Fatalf("Failed to open file: %s\n", err)
@@ -82,4 +82,27 @@ func fetchFromUrlList(filename string) {
 	if err := scanner.Err(); err != nil {
 		//log.Fatalf("Error reading URLs: %s\n", err)
 	}
+}
+func fetchFromUrlList(urls []string) {
+	var wg sync.WaitGroup
+
+	urlChan := make(chan string)
+
+	for i := 0; i < maxWorkers; i++ {
+		go func() {
+			for url := range urlChan {
+				cacheFileName := md5Hash(url)[0:8]
+				if !fileExists(cacheDir + cacheFileName) {
+					wg.Add(1)
+					scrapeURL(url, &wg)
+				}
+			}
+		}()
+	}
+
+	for _, url := range urls {
+		urlChan <- url
+	}
+	close(urlChan)
+	wg.Wait()
 }

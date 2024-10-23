@@ -16,7 +16,7 @@ func main() {
 	signatures = readSignatures()
 
 	if *urlList != "" {
-		fetchFromUrlList(*urlList)
+		fetchFromUrlListFile(*urlList)
 		files, _ := listCachedFiles()
 		ScanFiles(files)
 		return
@@ -71,7 +71,7 @@ func main() {
 	*/
 	if *phishtank {
 		savePhishtankDataset()
-		fetchFromUrlList(phishtankURLCache)
+		fetchFromUrlListFile(phishtankURLCache)
 		files, _ := listCachedFiles()
 		ScanFiles(files)
 		os.RemoveAll(phishtankURLCache)

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -75,22 +76,44 @@ func grabURLs(text string) []string {
 	scanner := bufio.NewScanner(strings.NewReader(text))
 
 	rx := xurls.Relaxed()
+	rxUrls := rx.FindAllString(text, -1)
+	captured = append(captured, rxUrls...)
 
-	for scanner.Scan() {
-		line := scanner.Text()
-		urls := rx.FindAllString(line, -1)
-		for _, url := range urls {
-			if strings.Contains(url, "://") && url != location {
-				captured = append(captured, url)
+	splitText := strings.Split(text, "{")
+
+	protocol := substringBeforeFirst(location, "://")
+
+	for _, line := range splitText {
+
+		re := regexp.MustCompile(`(?:href|src|action|cite|data|formaction|poster)\s*=\s*["']([^"']+)["']`)
+		matches := re.FindAllStringSubmatch(line, -1)
+
+		for _, match := range matches {
+			fixedUrl := match[1]
+			if strings.HasPrefix(fixedUrl, "//") {
+				fixedUrl = protocol + ":" + fixedUrl
 			}
+			validDomains, _ := textsubs.DomainsOnly(fixedUrl, false)
+			if len(validDomains) > 0 && !strings.Contains(fixedUrl, "://") {
+				fixedUrl = protocol + ":" + fixedUrl
+			}
+			captured = append(captured, fixedUrl)
 		}
+
 	}
 
 	if err := scanner.Err(); err != nil {
-		//fmt.Printf("error reading string: %s\n", err)
+		fmt.Printf("error reading string: %s\n", err)
 	}
 
-	return captured
+	var urls []string
+	for _, url := range captured {
+		if strings.Contains(url, "://") {
+			urls = append(urls, url)
+		}
+	}
+
+	return removeDuplicates(urls)
 
 }
 
@@ -106,15 +129,12 @@ func FindSecrets(text string) ToolData {
 
 	splitText := strings.Split(text, "{")
 
-	// Mutex to protect shared resources (secrets and tags)
 	var mu sync.Mutex
 	var wg sync.WaitGroup
 
-	// Channel for worker pool
 	workerCount := 10000
 	lineChan := make(chan string, workerCount)
 
-	// Launch workers
 	for i := 0; i < workerCount; i++ {
 		wg.Add(1)
 		go func() {
@@ -129,7 +149,7 @@ func FindSecrets(text string) ToolData {
 							match, _ := re.MatchString(value)
 
 							if match {
-								mu.Lock() // Lock for modifying shared resources
+								mu.Lock()
 								tags = append(tags, "regexMatched")
 								mu.Unlock()
 
@@ -156,7 +176,6 @@ func FindSecrets(text string) ToolData {
 									Tags:        removeDuplicates(tags),
 								}
 
-								// Protect secrets from concurrent writes
 								mu.Lock()
 								secrets = append(secrets, secret)
 								mu.Unlock()
@@ -168,22 +187,17 @@ func FindSecrets(text string) ToolData {
 		}()
 	}
 
-	// Send all lines to the channel for processing
 	for _, line := range splitText {
 		lineChan <- line
 	}
 
-	// Close the channel when done sending work
 	close(lineChan)
 
-	// Wait for all workers to finish
 	wg.Wait()
 
-	// Capture URLs after all processing is done
 	sourceUrl := substringBeforeFirst(text, "---")
 	capturedUrls := grabURLs(text)
 
-	// Prepare final output
 	output = ToolData{
 		Tool:            "secretsnitch",
 		ScanTimestamp:   time.Now().UTC().Format("2006-01-02T15:04:05.000Z07:00"),
@@ -213,6 +227,13 @@ func scanFile(filePath string, wg *sync.WaitGroup) {
 		appendToFile(*outputFile, string(unindented))
 		indented, _ := json.MarshalIndent(secrets, "", "	")
 		fmt.Println(string(indented))
+	}
+
+	if *recurse {
+		urls := grabURLs(string(data))
+		fetchFromUrlList(urls)
+		files, _ := listCachedFiles()
+		ScanFiles(files)
 	}
 
 }

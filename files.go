@@ -80,6 +80,7 @@ func listCachedFiles() ([]string, error) {
 	}
 	return fileList, err
 }
+
 func appendToFile(filePath string, text string) error {
 	dir := filepath.Dir(filePath)
 
