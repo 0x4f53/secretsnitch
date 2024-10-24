@@ -33,14 +33,15 @@ func scrapeURL(url string, wg *sync.WaitGroup) {
 	c.SetRequestTimeout(time.Duration(timeoutSeconds) * time.Second)
 	c.OnResponse(func(r *colly.Response) {
 		responseString := url + "\n---\n" + string(r.Body)
-		cacheFileName := md5Hash(url)[0:8]
-		err := saveToCache(cacheFileName, responseString)
+
+		err := saveToCache(makeCacheFilename(url), responseString)
 		if err != nil {
 			//log.Printf("Failed to write response body to file: %s\n", err)
 		} else {
 			//log.Printf("Content from %s saved to %s\n", url, cacheDir)
 		}
 	})
+
 	err := c.Visit(url)
 	if err != nil {
 		//log.Printf("Failed to visit URL %s: %s\n", url, err)
@@ -91,8 +92,7 @@ func fetchFromUrlList(urls []string) {
 	for i := 0; i < maxWorkers; i++ {
 		go func() {
 			for url := range urlChan {
-				cacheFileName := md5Hash(url)[0:8]
-				if !fileExists(cacheDir + cacheFileName) {
+				if !fileExists(makeCacheFilename(url)) {
 					wg.Add(1)
 					scrapeURL(url, &wg)
 				}

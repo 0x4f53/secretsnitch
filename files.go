@@ -21,6 +21,29 @@ var (
 	defaultOutputDir   = "output.json"
 )
 
+func listFiles(directory string) ([]string, error) {
+	var files []string
+
+	dir, err := os.Open(directory)
+	if err != nil {
+		return nil, err
+	}
+	defer dir.Close()
+
+	fileInfo, err := dir.Readdir(-1)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, file := range fileInfo {
+		if !file.IsDir() {
+			files = append(files, file.Name())
+		}
+	}
+
+	return files, nil
+}
+
 func readLines(filename string) ([]string, error) {
 	file, err := os.Open(filename)
 	if err != nil {
@@ -63,6 +86,10 @@ func fileExists(location string) bool {
 		return true
 	}
 	return false
+}
+
+func makeCacheFilename(url string) string {
+	return cacheDir + md5Hash(url)[0:8] + cacheFileExtension
 }
 
 func listCachedFiles() ([]string, error) {

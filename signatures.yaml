@@ -49,7 +49,7 @@
 - Google:
   - Cloud API Key: AIza[0-9A-Za-z_-]{35}
   - Cloud OAuth Secret: (?i)(GOCSPX-[-0-9A-Za-z_]{24,32})
-  - reCaptcha Key: 6L([A-Za-z0-9_-]{38,40})
+  # - reCaptcha Key: 6L([A-Za-z0-9_-]{38,40})
   - OAuth Key: ya29\.[0-9A-Za-z_-]{64,256}
   - Firebase URL: (?i)https:\/\/[a-z0-9-]+\.firebaseio\.com\/.*.json
   - Firebase Cloud Messaging API Key: (?i)([0-9a-zA-Z_-]{11}:APA91b[0-9a-zA-Z_-]{134})
