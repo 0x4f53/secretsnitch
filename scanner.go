@@ -163,7 +163,7 @@ func FindSecrets(text string) ToolData {
 								}
 
 								providerString := strings.ToLower(strings.Split(provider.Name, ".")[0])
-								
+
 								if strings.Contains(strings.ToLower(text), providerString) {
 									mu.Lock()
 									tags = append(tags, "providerDetected")
@@ -213,6 +213,8 @@ func FindSecrets(text string) ToolData {
 	return output
 }
 
+var recursionCount = 0
+
 func scanFile(filePath string, wg *sync.WaitGroup) {
 	defer wg.Done()
 
@@ -233,10 +235,13 @@ func scanFile(filePath string, wg *sync.WaitGroup) {
 	}
 
 	if *recurse {
+		recursionCount++
 		urls := grabURLs(string(data))
 		fetchFromUrlList(urls)
 		files, _ := listCachedFiles()
-		ScanFiles(files)
+		if recursionCount < 1 {
+			ScanFiles(files)
+		}
 	}
 
 }
