@@ -1,11 +1,9 @@
-package secretsnitch
+package main
 
 import (
 	"crypto/md5"
 	"fmt"
 	"strings"
-
-	"golang.org/x/exp/rand"
 )
 
 func substringBeforeFirst(input string, delimiter string) string {
@@ -14,15 +12,6 @@ func substringBeforeFirst(input string, delimiter string) string {
 		return ""
 	}
 	return strings.TrimSpace(input[:index])
-}
-
-func randomString(n int) string {
-	const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = charset[rand.Intn(len(charset))]
-	}
-	return string(b)
 }
 
 func md5Hash(text string) string {
@@ -42,4 +31,13 @@ func removeDuplicates(elements []string) []string {
 	}
 
 	return result
+}
+
+func sliceContainsString(slice []string, item string) bool {
+	for _, s := range slice {
+		if s == item {
+			return true
+		}
+	}
+	return false
 }

@@ -1,4 +1,4 @@
-package secretsnitch
+package main
 
 import (
 	"bufio"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -18,6 +19,7 @@ import (
 type Secret struct {
 	Provider    string
 	ServiceName string
+	Variable    string
 	Secret      string
 	Entropy     float64
 	Tags        []string
@@ -33,36 +35,34 @@ type ToolData struct {
 	CapturedURLs    []string
 }
 
-func getMatchingLines(input string, pattern string) ([]string, error) {
+func getMatchingLines(input string, pattern string) (map[string]string, error) {
 
 	// This is not the regular golang library. It supports lookaheads and stuff.
 	re := regexp2.MustCompile(pattern, 0)
 
-	var matches []string
+	matches := make(map[string]string)
 
 	scanner := bufio.NewScanner(strings.NewReader(input))
 	for scanner.Scan() {
 		line := scanner.Text()
-		values := grabDeclaredStringValues(line)
-		for _, value := range values {
+		values, _ := extractKeyValuePairs(line)
+		for key, value := range values {
 			match, _ := re.MatchString(value)
-			if match {
-				matches = append(matches, value)
+			if match && !containsBlacklisted(value) {
+				matches[key] = value
 			}
 		}
 	}
 
 	if err := scanner.Err(); err != nil && len(matches) == 0 {
-		values := grabDeclaredStringValues(input)
-		for _, value := range values {
+		values, _ := extractKeyValuePairs(input)
+		for key, value := range values {
 			match, _ := re.MatchString(value)
 			if match {
-				matches = append(matches, value)
+				matches[key] = value
 			}
 		}
 	}
-
-	matches = removeDuplicates(matches)
 
 	return matches, nil
 
@@ -73,25 +73,49 @@ func grabURLs(text string) []string {
 	var captured []string
 	location := substringBeforeFirst(text, "---")
 
+	text = strings.Replace(text, location, "", -1)
+
 	scanner := bufio.NewScanner(strings.NewReader(text))
 
 	rx := xurls.Relaxed()
+	rxUrls := rx.FindAllString(text, -1)
+	captured = append(captured, rxUrls...)
 
-	for scanner.Scan() {
-		line := scanner.Text()
-		urls := rx.FindAllString(line, -1)
-		for _, url := range urls {
-			if strings.Contains(url, "://") && url != location {
-				captured = append(captured, url)
+	splitText := strings.Split(text, "{")
+
+	protocol := substringBeforeFirst(location, "://")
+
+	for _, line := range splitText {
+
+		re := regexp.MustCompile(`(?:href|src|action|cite|data|formaction|poster)\s*=\s*["']([^"']+)["']`)
+		matches := re.FindAllStringSubmatch(line, -1)
+
+		for _, match := range matches {
+			fixedUrl := match[1]
+			if strings.HasPrefix(fixedUrl, "//") {
+				fixedUrl = protocol + ":" + fixedUrl
 			}
+			validDomains, _ := textsubs.DomainsOnly(fixedUrl, false)
+			if len(validDomains) > 0 && !strings.Contains(fixedUrl, "://") {
+				fixedUrl = protocol + ":" + fixedUrl
+			}
+			captured = append(captured, fixedUrl)
 		}
+
 	}
 
 	if err := scanner.Err(); err != nil {
-		//fmt.Printf("error reading string: %s\n", err)
+		fmt.Printf("error reading string: %s\n", err)
 	}
 
-	return captured
+	var urls []string
+	for _, url := range captured {
+		if strings.Contains(url, "://") {
+			urls = append(urls, url)
+		}
+	}
+
+	return removeDuplicates(urls)
 
 }
 
@@ -105,68 +129,91 @@ func FindSecrets(text string) ToolData {
 	domains, _ := textsubs.DomainsOnly(text, false)
 	domains = textsubs.Resolve(domains)
 
-	for _, provider := range signatures {
-		for service, regex := range provider.Keys {
-			matches, err := getMatchingLines(text, regex)
-			if err != nil {
-				//log.Printf("Error reading data: %v\n", err)
-				return output
-			}
+	splitText := strings.Split(text, "{")
 
-			if len(matches) > 0 {
+	var mu sync.Mutex
+	var wg sync.WaitGroup
 
-				matches = removeDuplicates(matches)
+	workerCount := 10000
+	lineChan := make(chan string, workerCount)
 
-				for _, match := range matches {
+	for i := 0; i < workerCount; i++ {
+		wg.Add(1)
+		go func() {
+			defer wg.Done()
+			for line := range lineChan {
+				data, _ := extractKeyValuePairs(line)
 
-					tags = append(tags, "regexMatched")
+				for key, value := range data {
+					for _, provider := range signatures {
+						for service, regex := range provider.Keys {
+							re := regexp2.MustCompile(regex, 0)
+							match, _ := re.MatchString(value)
 
-					entropy := EntropyPercentage(match)
-					if entropy > 66.6 {
-						tags = append(tags, "highEntropy")
+							if match {
+								mu.Lock()
+								tags = append(tags, "regexMatched")
+								mu.Unlock()
+
+								entropy := EntropyPercentage(value)
+								if entropy > 66.6 {
+									mu.Lock()
+									tags = append(tags, "highEntropy")
+									mu.Unlock()
+								}
+
+								providerString := strings.ToLower(strings.Split(provider.Name, ".")[0])
+
+								if strings.Contains(strings.ToLower(text), providerString) {
+									mu.Lock()
+									tags = append(tags, "providerDetected")
+									mu.Unlock()
+								}
+
+								secret := Secret{
+									Provider:    provider.Name,
+									ServiceName: service,
+									Variable:    key,
+									Secret:      value,
+									Entropy:     entropy,
+									Tags:        removeDuplicates(tags),
+								}
+
+								mu.Lock()
+								secrets = append(secrets, secret)
+								mu.Unlock()
+							}
+						}
 					}
-
-					// todo: modify this to look at the variable named before the captured string and see if THAT
-					// has the provider and/or service name or not.
-					providerString := strings.ToLower(strings.Split(provider.Name, ".")[0])
-					if strings.Contains(strings.ToLower(text), providerString) {
-						tags = append(tags, "providerDetected")
-					}
-
-					secret := Secret{
-						Provider:    provider.Name,
-						ServiceName: service,
-						Secret:      match,
-						Entropy:     entropy,
-						Tags:        removeDuplicates(tags),
-					}
-
-					// Remove this in the future when working with 
-					// env files and stuff
-					if strings.Contains(text, providerString) {
-						secrets = append(secrets, secret)
-					}
-
 				}
-
-				sourceUrl := substringBeforeFirst(text, "---")
-				capturedUrls := grabURLs(text)
-
-				output = ToolData{
-					Tool:            "secretsnitch",
-					ScanTimestamp:   time.Now().UTC().Format("2006-01-02T15:04:05.000Z07:00"),
-					SourceUrl:       sourceUrl,
-					Secrets:         secrets,
-					CapturedDomains: domains,
-					CapturedURLs:    removeDuplicates(capturedUrls),
-				}
 			}
-		}
+		}()
+	}
+
+	for _, line := range splitText {
+		lineChan <- line
+	}
+
+	close(lineChan)
+
+	wg.Wait()
+
+	sourceUrl := substringBeforeFirst(text, "---")
+	capturedUrls := grabURLs(text)
+
+	output = ToolData{
+		Tool:            "secretsnitch",
+		ScanTimestamp:   time.Now().UTC().Format("2006-01-02T15:04:05.000Z07:00"),
+		SourceUrl:       sourceUrl,
+		Secrets:         secrets,
+		CapturedDomains: domains,
+		CapturedURLs:    removeDuplicates(capturedUrls),
 	}
 
 	return output
-
 }
+
+var recursionCount = 0
 
 func scanFile(filePath string, wg *sync.WaitGroup) {
 	defer wg.Done()
@@ -187,15 +234,28 @@ func scanFile(filePath string, wg *sync.WaitGroup) {
 		fmt.Println(string(indented))
 	}
 
+	if *recurse {
+		recursionCount++
+		urls := grabURLs(string(data))
+		fetchFromUrlList(urls)
+		files, _ := listCachedFiles()
+		if recursionCount < 1 {
+			ScanFiles(files)
+		}
+	}
+
 }
 
 func ScanFiles(files []string) {
-
 	var wg sync.WaitGroup
 	fileChan := make(chan string)
 
 	for i := 0; i < maxWorkers; i++ {
-		go scanWorker(fileChan, &wg)
+		go func() {
+			for file := range fileChan {
+				scanFile(file, &wg)
+			}
+		}()
 	}
 
 	for _, file := range files {
@@ -205,10 +265,4 @@ func ScanFiles(files []string) {
 
 	close(fileChan)
 	wg.Wait()
-}
-
-func scanWorker(files <-chan string, wg *sync.WaitGroup) {
-	for file := range files {
-		scanFile(file, wg)
-	}
 }

@@ -15,6 +15,8 @@
 - Microsoft:
   - Azure API Key: (?i)(?:Ocp-Apim-Subscription-Key).{0,40}([a-f0-9)]{32})
   - Azure Functions key: (?i)(?:x-functions-key:\s*)[a-zA-Z0-9\-_]{30,}
+  # - Azure account key
+  # - Azure account name
   - Azure Connection String: (?i)(.*.windows.net).+(password["':= ]{0,5}["':= ]{0,5}.{5,})
   - Azure Endpoint Key: (?i)(defaultendpointsprotocol).+(key).+
   - Client Secret: (?i)(?:client_secret|ClientSecret)[\s:\"]{0,3}[a-zA-Z0-9\-_]{36,}
@@ -47,7 +49,7 @@
 - Google:
   - Cloud API Key: AIza[0-9A-Za-z_-]{35}
   - Cloud OAuth Secret: (?i)(GOCSPX-[-0-9A-Za-z_]{24,32})
-  #- reCaptcha Key: 6L([A-Za-z0-9_-]{38,40})
+  # - reCaptcha Key: 6L([A-Za-z0-9_-]{38,40})
   - OAuth Key: ya29\.[0-9A-Za-z_-]{64,256}
   - Firebase URL: (?i)https:\/\/[a-z0-9-]+\.firebaseio\.com\/.*.json
   - Firebase Cloud Messaging API Key: (?i)([0-9a-zA-Z_-]{11}:APA91b[0-9a-zA-Z_-]{134})
@@ -88,6 +90,9 @@
   - Configuration Refresh Token: (xoxe-[0-9]{0,2}-[a-zA-Z0-9-]{130,170})
   - App Token: (xapp-[0-9]{0,2}-[A-Z0-9]{8,13}-[0-9]{12,15}-[a-zA-Z0-9-]{60,70})
 
+# - StackUp
+#   - API Key: STACK_UP_AUTH
+
 - Docker:
   - Hub Access Token: dckr_pat_[a-zA-Z0-9_=-]{24,32}
   - Swarm Join Token: (?i)(SWMTKN-[a-z0-9A-Z]+)
@@ -113,7 +118,7 @@
 - Stripe:
   - Read-only Key: (?i)rk_live_[a-zA-Z0-9]{20,30}
   - Secret Key: (?i)sk_live_[a-zA-Z0-9]{20,30}
-  # - Publishable Key: (?i)pk_live_[a-zA-Z0-9]{20,30}
+  - Publishable Key: (?i)pk_live_[a-zA-Z0-9]{20,30}
 
 - PayPal:
   - Access Token: (?:^|['\"])access_token\$production\$([0-9a-zA-Z]{28,42})
@@ -218,6 +223,9 @@
 
 - Freshdesk:
   - API Token: (?i)(?:freshdesk)[^{}()<>?*&:%@.\-!\/\n]{0,40}\b([0-9A-Za-z]{16,24})
+
+- SendInBlue:
+  - API Key: xkeysib-.{0,81}
 
 - Docusign:
   - API Key: (?i)(?:docusign).{0,40}\b[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\b

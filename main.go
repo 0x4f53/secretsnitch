@@ -1,8 +1,10 @@
-package secretsnitch
+package main
 
 import (
 	"os"
-	"sync"
+
+	githubPatches "github.com/0x4f53/github-patches"
+	gitlabPatches "github.com/0x4f53/gitlab-patches"
 )
 
 var maxWorkers = 100000 // number of concurrent workers
@@ -16,22 +18,15 @@ func main() {
 	signatures = readSignatures()
 
 	if *urlList != "" {
-		FetchFromUrlList(*urlList)
-		files, _ := ListCachedFiles()
-		ScanFiles(files)
+		urls, _ := readLines(*urlList)
+		successfulUrls := fetchFromUrlList(urls)
+		ScanFiles(successfulUrls)
 		return
 	}
 
 	if *url != "" {
-		var wg sync.WaitGroup
-		cacheFileName := cacheDir + md5Hash(*url)[0:8] + cacheFileExtension
-		if !fileExists(cacheFileName) {
-			wg.Add(1)
-			scrapeURL(*url, &wg)
-		}
-		wg.Add(1)
-		scanFile(cacheFileName, &wg)
-		wg.Wait()
+		successfulUrls := fetchFromUrlList([]string{*url})
+		ScanFiles(successfulUrls)
 		return
 	}
 
@@ -41,34 +36,55 @@ func main() {
 		return
 	}
 
-	if *github {
-		patches := getGitHubPatchLinks(*to, *from)
-		cacheGitHubPatchLinks(patches)
-		FetchFromUrlList(gitHubPatchCache)
-		files, _ := ListCachedFiles()
-		ScanFiles(files)
-		os.RemoveAll(gitHubPatchCache)
-		os.RemoveAll(gitHubCommitsDirectory)
+	if *file != "" {
+		ScanFiles([]string{*file})
 		return
 	}
 
+	if *github {
+		githubPatches.GetCommitsInRange(githubPatches.GithubCacheDir, *from, *to, false)
+		chunks, _ := listFiles(githubPatches.GithubCacheDir)
+
+		var patches []string
+
+		for _, chunk := range chunks {
+			events, _ := githubPatches.ParseGitHubCommits(githubPatches.GithubCacheDir + chunk)
+
+			for _, event := range events {
+				for _, commit := range event.Payload.Commits {
+					patches = append(patches, commit.PatchURL)
+				}
+			}
+
+		}
+
+		successfulUrls := fetchFromUrlList(patches)
+		ScanFiles(successfulUrls)
+
+		os.RemoveAll(githubPatches.GithubCacheDir)
+		return
+
+	}
+
 	if *gitlab {
-		patches := getGitLabPatchLinks()
-		cacheGitLabPatchLinks(patches)
-		FetchFromUrlList(gitLabPatchCache)
-		files, _ := ListCachedFiles()
-		ScanFiles(files)
-		os.RemoveAll(gitLabPatchCache)
-		os.RemoveAll(gitLabCommitsDirectory)
+		commitData := gitlabPatches.GetGitlabCommits(100, 100)
+
+		var patches []string
+		for _, patch := range commitData {
+			patches = append(patches, patch.CommitPatchURL)
+		}
+
+		successfulUrls := fetchFromUrlList(patches)
+		ScanFiles(successfulUrls)
+		os.RemoveAll(gitlabPatches.GitlabCacheDir)
 		return
 	}
 
 	if *phishtank {
 		savePhishtankDataset()
-		FetchFromUrlList(phishtankURLCache)
-		files, _ := ListCachedFiles()
-		ScanFiles(files)
-		os.RemoveAll(phishtankURLCache)
+		urls, _ := readLines(phishtankURLCache)
+		successfulUrls := fetchFromUrlList(urls)
+		ScanFiles(successfulUrls)
 		return
 	}
 

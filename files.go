@@ -5,7 +5,7 @@ Stress tested with 100k URLs from GitHub - took around 2 minutes on an i5-8350U 
 *
 */
 
-package secretsnitch
+package main
 
 import (
 	"bufio"
@@ -20,6 +20,29 @@ var (
 	cacheFileExtension = ".cache"
 	defaultOutputDir   = "output.json"
 )
+
+func listFiles(directory string) ([]string, error) {
+	var files []string
+
+	dir, err := os.Open(directory)
+	if err != nil {
+		return nil, err
+	}
+	defer dir.Close()
+
+	fileInfo, err := dir.Readdir(-1)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, file := range fileInfo {
+		if !file.IsDir() {
+			files = append(files, file.Name())
+		}
+	}
+
+	return files, nil
+}
 
 func readLines(filename string) ([]string, error) {
 	file, err := os.Open(filename)
@@ -45,17 +68,10 @@ func makeDir(dirName string) error {
 	if _, err := os.Stat(dirName); os.IsNotExist(err) {
 		err := os.MkdirAll(dirName, os.ModePerm)
 		if err != nil {
-			return fmt.Errorf("Failed to create directory: %w", err)
+			return fmt.Errorf("failed to create directory: %w", err)
 		}
 	}
 	return nil
-}
-
-func saveToCache(filename string, data string) error {
-	makeDir(cacheDir)
-	filename = cacheDir + filename + cacheFileExtension
-	err := os.WriteFile(filename, []byte(data), 0644)
-	return err
 }
 
 func fileExists(location string) bool {
@@ -65,7 +81,11 @@ func fileExists(location string) bool {
 	return false
 }
 
-func ListCachedFiles() ([]string, error) {
+func makeCacheFilename(url string) string {
+	return cacheDir + md5Hash(url)[0:8] + cacheFileExtension
+}
+
+func listCachedFiles() ([]string, error) {
 	var fileList []string
 	files, err := os.ReadDir(cacheDir)
 	if err != nil {
@@ -80,6 +100,7 @@ func ListCachedFiles() ([]string, error) {
 	}
 	return fileList, err
 }
+
 func appendToFile(filePath string, text string) error {
 	dir := filepath.Dir(filePath)
 
