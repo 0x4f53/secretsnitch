@@ -1,11 +1,10 @@
 package main
 
 import (
-	"fmt"
 	"os"
-	"sync"
 
 	githubPatches "github.com/0x4f53/github-patches"
+	gitlabPatches "github.com/0x4f53/gitlab-patches"
 )
 
 var maxWorkers = 100000 // number of concurrent workers
@@ -19,26 +18,15 @@ func main() {
 	signatures = readSignatures()
 
 	if *urlList != "" {
-		fetchFromUrlListFile(*urlList)
-		files, _ := listCachedFiles()
-		ScanFiles(files)
+		urls, _ := readLines(*urlList)
+		successfulUrls := fetchFromUrlList(urls)
+		ScanFiles(successfulUrls)
 		return
 	}
 
 	if *url != "" {
-
-		cacheFileName := makeCacheFilename(*url)
-
-		var wg sync.WaitGroup
-
-		if !fileExists(cacheFileName) {
-			wg.Add(1)
-			scrapeURL(*url, &wg)
-		}
-
-		wg.Add(1)
-		scanFile(cacheFileName, &wg)
-		wg.Wait()
+		successfulUrls := fetchFromUrlList([]string{*url})
+		ScanFiles(successfulUrls)
 		return
 	}
 
@@ -55,43 +43,48 @@ func main() {
 
 	if *github {
 		githubPatches.GetCommitsInRange(githubPatches.GithubCacheDir, *from, *to, false)
-		patchFiles, _ := listFiles(githubPatches.GithubCacheDir)
-		parsedData, _ := githubPatches.ParseJSONFiles(patchFiles)
-
-		fmt.Println(parsedData)
+		chunks, _ := listFiles(githubPatches.GithubCacheDir)
 
 		var patches []string
-		for _, patch := range parsedData {
-			patches = append(patches, patch.PatchUrl)
+
+		for _, chunk := range chunks {
+			events, _ := githubPatches.ParseGitHubCommits(githubPatches.GithubCacheDir + chunk)
+
+			for _, event := range events {
+				for _, commit := range event.Payload.Commits {
+					patches = append(patches, commit.PatchURL)
+				}
+			}
+
 		}
 
-		fetchFromUrlList(patches)
+		successfulUrls := fetchFromUrlList(patches)
+		ScanFiles(successfulUrls)
 
-		files, _ := listCachedFiles()
-		ScanFiles(files)
 		os.RemoveAll(githubPatches.GithubCacheDir)
+		return
+
+	}
+
+	if *gitlab {
+		commitData := gitlabPatches.GetGitlabCommits(100, 100)
+
+		var patches []string
+		for _, patch := range commitData {
+			patches = append(patches, patch.CommitPatchURL)
+		}
+
+		successfulUrls := fetchFromUrlList(patches)
+		ScanFiles(successfulUrls)
+		os.RemoveAll(gitlabPatches.GitlabCacheDir)
 		return
 	}
 
-	/*
-		if *gitlab {
-			patches := getGitLabPatchLinks()
-			cacheGitLabPatchLinks(patches)
-			fetchFromUrlList(gitLabPatchCache)
-			files, _ := listCachedFiles()
-			ScanFiles(files)
-			os.RemoveAll(gitLabPatchCache)
-			os.RemoveAll(gitLabCommitsDirectory)
-			return
-		}
-	*/
-
 	if *phishtank {
 		savePhishtankDataset()
-		fetchFromUrlListFile(phishtankURLCache)
-		files, _ := listCachedFiles()
-		ScanFiles(files)
-		os.RemoveAll(phishtankURLCache)
+		urls, _ := readLines(phishtankURLCache)
+		successfulUrls := fetchFromUrlList(urls)
+		ScanFiles(successfulUrls)
 		return
 	}
 

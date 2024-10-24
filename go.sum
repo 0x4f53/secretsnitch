@@ -1,6 +1,10 @@
 cloud.google.com/go/compute/metadata v0.2.0/go.mod h1:zFmK7XCadkQkj6TtorcaGlCW1hT1fIilQDwofLpJ20k=
 github.com/0x4f53/github-patches v0.0.0-20241023223745-dda97a19335d h1:7DyARKeyOqESUiFD2WZSTMY5pR2DaF7fcc7KAT37QK8=
 github.com/0x4f53/github-patches v0.0.0-20241023223745-dda97a19335d/go.mod h1:gFxyK6x366/fcLPaGZ0KWeiit7/HPyM/qLAxWd8zzvc=
+github.com/0x4f53/github-patches v0.1.1 h1:7LWspYU/VV8pvNcfMZj3dAuSCcwOdQXr9dixBjhrAHs=
+github.com/0x4f53/github-patches v0.1.1/go.mod h1:aL3B6BZjuuYvM1w+XwtPzUNx3NKNdJMx242H04TT1X4=
+github.com/0x4f53/gitlab-patches v0.1.0 h1:whU0vG2yEQtEOHpTj3NwY6Nov5iZsPLyNaX7k9BoOvM=
+github.com/0x4f53/gitlab-patches v0.1.0/go.mod h1:1EJZ/TWYDrgJHxawSgxORgRM7fih6nnQ5s0k0LXRdH8=
 github.com/0x4f53/textsubs v0.0.0-20240822231959-6b42e2197761 h1:zS3mP9WIX/XhHCijbj1ne9T7gyUMEXmW+z7DIH2LVYA=
 github.com/0x4f53/textsubs v0.0.0-20240822231959-6b42e2197761/go.mod h1:LHlDfz1hP1RagyTkOaoYzuM7FQE6z2JSgEbWXjtxAmk=
 github.com/ProtonMail/go-crypto v0.0.0-20230217124315-7d5c6f04bbb8/go.mod h1:I0gYDMZ6Z5GRU7l58bNFSkPTFN6Yl12dsUlAZ8xy98g=

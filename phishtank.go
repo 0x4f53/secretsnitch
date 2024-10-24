@@ -9,7 +9,7 @@ import (
 	"os"
 )
 
-var phishtankURLCache = "./phishtankURLCache"
+var phishtankURLCache = "./.phishtankURLCache"
 var phishtankURL = "http://data.phishtank.com/data/online-valid.csv.gz"
 
 func savePhishtankDataset() error {

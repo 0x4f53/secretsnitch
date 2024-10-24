@@ -5,7 +5,7 @@ go 1.23
 toolchain go1.23.2
 
 require (
-	github.com/0x4f53/github-patches v0.0.0-20241023223745-dda97a19335d
+	github.com/0x4f53/github-patches v0.1.1
 	github.com/0x4f53/textsubs v0.0.0-20240822231959-6b42e2197761
 	github.com/dlclark/regexp2 v1.11.4
 	github.com/gocolly/colly v1.2.0
@@ -16,6 +16,7 @@ require (
 )
 
 require (
+	github.com/0x4f53/gitlab-patches v0.1.0 // indirect
 	github.com/PuerkitoBio/goquery v1.10.0 // indirect
 	github.com/andybalholm/cascadia v1.3.2 // indirect
 	github.com/antchfx/htmlquery v1.3.3 // indirect

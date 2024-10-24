@@ -68,17 +68,10 @@ func makeDir(dirName string) error {
 	if _, err := os.Stat(dirName); os.IsNotExist(err) {
 		err := os.MkdirAll(dirName, os.ModePerm)
 		if err != nil {
-			return fmt.Errorf("Failed to create directory: %w", err)
+			return fmt.Errorf("failed to create directory: %w", err)
 		}
 	}
 	return nil
-}
-
-func saveToCache(filename string, data string) error {
-	makeDir(cacheDir)
-	filename = cacheDir + filename + cacheFileExtension
-	err := os.WriteFile(filename, []byte(data), 0644)
-	return err
 }
 
 func fileExists(location string) bool {

@@ -73,6 +73,8 @@ func grabURLs(text string) []string {
 	var captured []string
 	location := substringBeforeFirst(text, "---")
 
+	text = strings.Replace(text, location, "", -1)
+
 	scanner := bufio.NewScanner(strings.NewReader(text))
 
 	rx := xurls.Relaxed()
@@ -161,6 +163,7 @@ func FindSecrets(text string) ToolData {
 								}
 
 								providerString := strings.ToLower(strings.Split(provider.Name, ".")[0])
+								
 								if strings.Contains(strings.ToLower(text), providerString) {
 									mu.Lock()
 									tags = append(tags, "providerDetected")
@@ -239,12 +242,15 @@ func scanFile(filePath string, wg *sync.WaitGroup) {
 }
 
 func ScanFiles(files []string) {
-
 	var wg sync.WaitGroup
 	fileChan := make(chan string)
 
 	for i := 0; i < maxWorkers; i++ {
-		go scanWorker(fileChan, &wg)
+		go func() {
+			for file := range fileChan {
+				scanFile(file, &wg)
+			}
+		}()
 	}
 
 	for _, file := range files {
@@ -254,10 +260,4 @@ func ScanFiles(files []string) {
 
 	close(fileChan)
 	wg.Wait()
-}
-
-func scanWorker(files <-chan string, wg *sync.WaitGroup) {
-	for file := range files {
-		scanFile(file, wg)
-	}
 }
