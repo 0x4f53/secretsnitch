@@ -25,7 +25,8 @@ _generated_files/
 .githubCache/
 .githubCommits/
 
-phishtankURLCache
+.phishtankURLCache
+.gitlabCommits
 
 .githubPatchCache
 
