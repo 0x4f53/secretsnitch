@@ -30,6 +30,7 @@ func extractKeyValuePairs(text string) (map[string]string, error) {
 	// Regular expressions for matching various formats
 	var reJSON = regexp.MustCompile(`"([^"]+)" *:\s*"([^"]+)"`)
 	var reJS = regexp.MustCompile(`(\w+):"([^"]+)"`)
+	var reEnv = regexp.MustCompile(`^\s*([A-Z_][A-Z0-9_]*?)\s*=\s*(.*)\s*$`)
 	var reDict = regexp.MustCompile(`'([^']+)' *:\s*'([^']+)'`)
 	var reGo = regexp.MustCompile(`\b(\w+)\s*:=\s*"([^"]+)"`)
 	var reXML = regexp.MustCompile(`<([^\/>]+)[\/]*>.*</([^\/>]+)[\/]*>`)
@@ -49,6 +50,13 @@ func extractKeyValuePairs(text string) (map[string]string, error) {
 
 		// Match JS style key-value pairs
 		if matches := reJS.FindAllStringSubmatch(line, -1); matches != nil {
+			for _, match := range matches {
+				keyValuePairs[match[1]] = match[2]
+			}
+		}
+
+		// Match .env file style key-value pairs
+		if matches := reEnv.FindAllStringSubmatch(line, -1); matches != nil {
 			for _, match := range matches {
 				keyValuePairs[match[1]] = match[2]
 			}
