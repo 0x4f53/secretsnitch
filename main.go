@@ -60,10 +60,8 @@ func main() {
 
 		successfulUrls := fetchFromUrlList(patches)
 		ScanFiles(successfulUrls)
-
 		os.RemoveAll(githubPatches.GithubCacheDir)
 		return
-
 	}
 
 	if *gitlab {
@@ -77,6 +75,20 @@ func main() {
 		successfulUrls := fetchFromUrlList(patches)
 		ScanFiles(successfulUrls)
 		os.RemoveAll(gitlabPatches.GitlabCacheDir)
+		return
+	}
+
+	if *githubGists {
+		gistData := githubPatches.GetLast100Gists()
+		parsedGists, _ := githubPatches.ParseGistData(gistData)
+
+		var gists []string
+		for _, gist := range parsedGists {
+			gists = append(gists, gist.RawURL)
+		}
+
+		successfulUrls := fetchFromUrlList(gists)
+		ScanFiles(successfulUrls)
 		return
 	}
 

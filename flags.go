@@ -19,9 +19,10 @@ var (
 	urlList *string
 
 	//github module
-	github *bool
-	from   *string
-	to     *string
+	github      *bool
+	from        *string
+	to          *string
+	githubGists *bool
 
 	//gitlab module
 	gitlab *bool
@@ -47,6 +48,8 @@ func customUsage() {
 	fmt.Println("    --from                             (optional) Timestamp to start from (format: 2006-01-02-15)")
 	fmt.Println("    --to                               (optional) Timestamp to stop at (format: 2006-01-02-15)")
 	fmt.Println("")
+	fmt.Println("  --github-gists                       Scan the last 100 public GitHub Gists")
+	fmt.Println("")
 	fmt.Println("  --gitlab                             Scan the last 100 public GitLab commits")
 	fmt.Println("")
 	fmt.Println("  --phishtank                          Scan reported phishtank.org URLs from the past day")
@@ -70,6 +73,8 @@ func setFlags() {
 	from = pflag.String("from", "", "")
 	to = pflag.String("to", "", "")
 
+	githubGists = pflag.Bool("github-gists", false, "")
+
 	url = pflag.String("url", "", "")
 	urlList = pflag.String("urlList", "", "")
 	directory = pflag.String("directory", "", "")
@@ -86,7 +91,7 @@ func setFlags() {
 
 	pflag.Parse()
 
-	if !*github && !*gitlab && !*phishtank && *url == "" && *urlList == "" && *directory == "" && *file == "" {
+	if !*github && !*gitlab && !*phishtank && *url == "" && *urlList == "" && *directory == "" && *file == "" && !*githubGists {
 		pflag.Usage()
 		fmt.Println("Come on, you'll have to pick some option!")
 		os.Exit(-1)
